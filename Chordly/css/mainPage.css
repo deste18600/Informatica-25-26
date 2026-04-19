@@ -1,0 +1,256 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    background: #0a0a0a; /* sfondo quasi nero */
+    color: #e5e1d8; /* testo bianco sporco */
+}
+
+/* Barra di navigazione  */
+.navbar {
+    position: sticky; /* rimane in cima mentre scorri */
+    top: 0;
+    z-index: 100; /* sta sopra a tutto il resto */
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 0 28px;
+    height: 60px;
+    background: #0a0a0a;
+    border-bottom: 1px solid #c5a059; /* linea dorata sotto */
+}
+
+.nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 3px; /* spazio tra le lettere del logo */
+    color: #c5a059; /* oro */
+    text-decoration: none;
+}
+
+/* barra di ricerca al centro della navbar */
+.nav-search {
+    flex: 1; /* occupa tutto lo spazio disponibile */
+    max-width: 500px;
+    position: relative; /* serve per posizionare l'icona dentro */
+}
+
+/* icona lente dentro la barra di ricerca */
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%); /* centra verticalmente l'icona */
+    width: 16px;
+    height: 16px;
+    color: #888;
+}
+
+.nav-search input {
+    width: 100%;
+    padding: 8px 16px 8px 36px; /* padding a sinistra più grande per fare spazio all'icona */
+    border-radius: 20px;
+    border: 1px solid #333;
+    background: #1a1a1a;
+    color: white;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none; /* toglie il bordo blu di default del browser */
+}
+
+/* link a destra nella navbar (Seguiti, Messaggi ecc) */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-left: auto; /* spinge tutto a destra */
+}
+
+.nav-link {
+    color: #888;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.nav-link:hover {
+    color: white;
+}
+
+/* bottone giallo "+ Vendi" */
+.btn-sell {
+    background: #c5a059;
+    color: #111;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 18px;
+    border-radius: 20px;
+}
+
+/* BARRA FILTRI */
+.filters-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    background: #111;
+    border-bottom: 1px solid #222;
+    overflow-x: auto; /* se i filtri non ci stanno, si può scorrere orizzontalmente */
+    scrollbar-width: none; /* nasconde la scrollbar su Firefox */
+}
+
+.filters-bar::-webkit-scrollbar {
+    display: none; /* nasconde la scrollbar su Chrome */
+}
+
+/* bottoni filtro (Tutto, Chitarre, Bassi ecc) */
+.chip {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid #333;
+    background: transparent;
+    color: #888;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    white-space: nowrap; /* il testo non va a capo */
+}
+
+/* chip selezionato diventa dorato */
+.chip.active {
+    background: #c5a059;
+    border-color: #c5a059;
+    color: #111;
+    font-weight: 500;
+}
+
+/* chip che sono dei dropdown (Stato, Prezzo) */
+.select-chip {
+    appearance: none; /* toglie la freccia di default del browser */
+    -webkit-appearance: none;
+    padding-right: 28px;
+    cursor: pointer;
+}
+
+.select-chip option {
+    background: #1a1a1a;
+    color: white;
+}
+
+/* linea verticale di separazione tra i filtri */
+.filter-divider {
+    width: 1px;
+    height: 20px;
+    background: #333;
+    margin: 0 4px;
+}
+
+/* --- GRIGLIA PRODOTTI --- */
+.main-content {
+    padding: 28px 28px 60px;
+    max-width: 1400px;
+    margin: 0 auto; /* centra il contenuto */
+}
+
+/* testo "X articoli disponibili" */
+.results-label {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 20px;
+}
+
+/* griglia che si adatta automaticamente allo schermo */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* crea quante colonne ci stanno, minimo 180px */
+    gap: 16px;
+}
+
+/* singola card prodotto */
+.product-card {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    overflow: hidden; /* nasconde tutto ciò che esce dai bordi arrotondati */
+    cursor: pointer;
+}
+
+.product-card:hover {
+    border-color: #c5a059; /* bordo dorato quando ci passi sopra */
+}
+
+/* contenitore dell'immagine */
+.card-image-wrapper {
+    position: relative; /* serve per posizionare il badge dello stato sopra l'immagine */
+    width: 100%;
+    aspect-ratio: 3/4; /* formato ritratto, come una copertina */
+    background: #111;
+    overflow: hidden;
+}
+
+.card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* l'immagine riempie lo spazio senza deformarsi */
+}
+
+/* quando non c'è un'immagine vera */
+.placeholder-img {
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* badge "OTTIMO / BUONO / DIFETTATO" sopra l'immagine */
+.stato-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    border: 1px solid #333;
+    color: #888; /* colore di default per "buono" */
+}
+
+/* ottimo diventa dorato */
+.stato-badge.ottimo { color: #c5a059; border-color: #c5a059; }
+/* difettato diventa rosso */
+.stato-badge.difettato { color: #cc6666; border-color: #cc6666; }
+
+/* parte testuale sotto l'immagine */
+.card-body {
+    padding: 10px 12px 12px;
+}
+
+.card-price {
+    color: #c5a059;
+    font-weight: 500;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.card-title {
+    color: #e5e1d8;
+    font-size: 13px;
+    line-height: 1.3;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* se il titolo è troppo lungo mette i "..." */
+}
+
+.card-category {
+    color: #888;
+    font-size: 11px;
+    margin-bottom: 8px;
+}
+

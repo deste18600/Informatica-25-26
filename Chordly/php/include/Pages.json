@@ -1,0 +1,16 @@
+{
+    "userpages": [],
+    "adminpages": [],
+    "loggedInPages": [
+        "mainPage.php",
+        "addArticle.php",
+        "deleteArticle.php",
+        "followingPage.php",
+        "messagesPage.php",
+        "profilePage.php"
+    ],
+    "DBPages": [
+        "login.php",
+        "signIn.php"
+    ]
+}

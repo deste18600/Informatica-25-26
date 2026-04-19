@@ -1,0 +1,182 @@
+/* RESET DEGLI STILI DI DEFAULT (sistemato problema browser)*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body*/
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: #0a0a0a;
+    color: #e5e1d8;
+    min-height: 100vh;
+}
+
+/* Barra di navigazione*/
+.navbar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 0 28px;
+    height: 60px;
+    background: rgba(10, 10, 10, 0.95);
+    border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+}
+
+/* Logo */
+.nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 3px;
+    color: #c5a059;
+    text-decoration: none;
+}
+
+/* Bottone torna alla home */
+.btn-back {
+    margin-left: auto;
+    color: rgba(255,255,255,0.65);
+    text-decoration: none;
+    font-size: 14px;
+    padding: 8px 16px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    transition: all 0.2s;
+}
+
+.btn-back:hover {
+    color: #c5a059;
+    border-color: rgba(197, 160, 89, 0.5);
+}
+
+/*  CONTENITORE PRINCIPALE */
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px 28px;
+}
+
+/* CARD DEL PROFILO*/
+.profile-card {
+    background: rgba(15, 15, 15, 0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 40px;
+}
+
+/* SEZIONE AVATAR E NOME */
+.profile-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+/* Avatar grande */
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(197, 160, 89, 0.2);
+    color: #c5a059;
+    font-size: 32px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+}
+
+/* Nome e cognome */
+.profile-name {
+    font-size: 28px;
+    margin: 0 0 8px;
+    color: white;
+}
+
+/* Email */
+.profile-email {
+    color: rgba(255,255,255,0.4);
+    margin: 0;
+    font-size: 14px;
+}
+
+/* ===== STATISTICHE =====*/
+.profile-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 32px;
+}
+
+/* Una singola statistica */
+.stat {
+    text-align: center;
+}
+
+/* Numero della statistica (es: 5, 12) */
+.stat-number {
+    font-size: 24px;
+    font-weight: 500;
+    color: #c5a059;
+    margin-bottom: 8px;
+}
+
+/* Etichetta della statistica (es: "Articoli in vendita") */
+.stat-label {
+    font-size: 12px;
+    color: #c5a059;
+    margin: 0;
+}
+
+/* Pulsanti profilo*/
+.profile-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* Stile generale dei pulsanti */
+.btn-action {
+    flex: 1;
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s;
+    text-decoration: none;
+    text-align: center;
+}
+
+/* Pulsante "Vendi articolo" (primario) */
+.btn-sell {
+    background: #c5a059;
+    color: #111;
+}
+
+.btn-sell:hover {
+    background: #d4b06a;
+}
+
+/* Pulsante "Modifica profilo" (secondario) */
+.btn-edit {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.65);
+}
+
+.btn-edit:hover {
+    border-color: rgba(197, 160, 89, 0.5);
+    color: #c5a059;
+}
+
+/* DATA ISCRIZIONE */
+.join-date {
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 32px;
+}
