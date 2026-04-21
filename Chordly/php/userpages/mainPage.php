@@ -1,8 +1,6 @@
 <?php
-
 // Salva l'ID dell'utente in una variabile per usarla dopo
 $userId = $_SESSION['userId'];
-
 // RECUPERA GLI ARTICOLI DAL DATABASE
 
 try {
@@ -37,6 +35,8 @@ try {
 
 
 //inizio html
+
+
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -56,8 +56,7 @@ try {
 
        
         <div class="nav-search">
-          
-            </svg>
+        
             <!-- Input per scrivere cosa cercare -->
             <input type="text" placeholder="Cerca chitarre, bassi, tastiere..." id="searchInput">
         </div>
@@ -130,17 +129,23 @@ try {
                      onclick="openArticle(<?php echo $articolo['idArticolo']; ?>)">
                     
                     <!-- IMMAGINE DEL PRODOTTO -->
-                    <div class="card-image-wrapper">
-                        <!-- Usiamo placeholder emoji al posto di immagini vere -->
-                        <div class="card-image placeholder-img" 
-                             style="background: linear-gradient(135deg, #1a1a1a 0%, #111 100%); display: flex; align-items: center; justify-content: center; font-size: 48px;">
-                            
-                        </div>
-                        <!-- Badge che mostra lo stato (ottimo, buono, difettato) -->
-                        <span class="stato-badge <?php echo htmlspecialchars($articolo['stato']); ?>">
-                            <?php echo htmlspecialchars($articolo['stato']); ?>
-                        </span>
-                    </div>
+<div class="card-image-wrapper">
+    <?php if ($articolo['immagine']): ?>
+        <img src="../../uploads/articoli/<?php echo htmlspecialchars($articolo['immagine']); ?>"
+             alt="<?php echo htmlspecialchars($articolo['titolo']); ?>"
+             class="card-image"
+             style="width:100%; height:100%; object-fit:cover;">
+    <?php else: ?>
+        <div class="card-image placeholder-img" 
+             style="background: linear-gradient(135deg, #1a1a1a 0%, #111 100%); display: flex; align-items: center; justify-content: center; font-size: 48px;">
+            🎸
+        </div>
+    <?php endif; ?>
+
+    <span class="stato-badge <?php echo htmlspecialchars($articolo['stato']); ?>">
+        <?php echo htmlspecialchars($articolo['stato']); ?>
+    </span>
+</div>
 
                     <!-- INFORMAZIONI DEL PRODOTTO -->
                     <div class="card-body">
@@ -180,7 +185,7 @@ try {
             applyFilters();
         }
 
-        // ===== FUNZIONE: APPLICA TUTTI I FILTRI =====
+        // FUNZIONE: APPLICA TUTTI I FILTRI 
         // Questa funzione mostra/nascondi gli articoli in base ai filtri
         function applyFilters() {
             // Prendi il valore dello stato dal dropdown
@@ -261,7 +266,7 @@ try {
 
 
 
-        // ===== RICERCA IN TEMPO REALE =====
+        // RICERCA IN TEMPO REALE 
         // Mentre scrivi nella barra di ricerca, filtra gli articoli
         document.getElementById('searchInput').addEventListener('keyup', function(e) {
             // Prendi quello che hai scritto e rendilo minuscolo
@@ -284,6 +289,11 @@ try {
                 }
             });
         });
+
+            // FUNZIONE: APRI UN ARTICOLO
+            function openArticle(idArticolo) {
+        window.location.href = 'articleDetail.php?id=' + idArticolo;
+}
     </script>
 
 </body>

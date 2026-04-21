@@ -2,30 +2,31 @@
 
 $userId = $_SESSION['userId'];
 
-//  RECUPERA I DATI DAL DATABASE 
+//  RECUPERA I DATI DAL DATABASE
+ 
 try {
-    // 1. Informazioni dell'utente
+    // Informazioni dell'utente
     $sqlUser = "SELECT nome, cognome, email, dataRegistrazione FROM Utente WHERE idUtente = :userId";
     $sthUser = DBHandler::getPDO()->prepare($sqlUser);
     $sthUser->bindParam(':userId', $userId, PDO::PARAM_INT);
     $sthUser->execute();
     $user = $sthUser->fetch();
 
-    // 2. Statistiche 
+    // Statistiche 
     $sqlArticoliCount = "SELECT COUNT(*) as totale FROM ArticoloInVendita WHERE fkUtenteId = :userId";
     $sthArticoliCount = DBHandler::getPDO()->prepare($sqlArticoliCount);
     $sthArticoliCount->bindParam(':userId', $userId, PDO::PARAM_INT);
     $sthArticoliCount->execute();
     $stats = $sthArticoliCount->fetch();
 
-    // 3. Statistiche (Follower)
+    // Statistiche (Follower)
     $sqlSeguaci = "SELECT COUNT(*) as totale FROM Segue WHERE idSeguito = :userId";
     $sthSeguaci = DBHandler::getPDO()->prepare($sqlSeguaci);
     $sthSeguaci->bindParam(':userId', $userId, PDO::PARAM_INT);
     $sthSeguaci->execute();
     $followers = $sthSeguaci->fetch();
 
-    // 4. LISTA ARTICOLI PERSONALI 
+    // LISTA ARTICOLI PERSONALI 
     $sqlMieiArticoli = "SELECT idArticolo, titolo, prezzo, categoria, stato FROM ArticoloInVendita 
                         WHERE fkUtenteId = :userId ORDER BY dataPost DESC";
     $sthMieiArticoli = DBHandler::getPDO()->prepare($sqlMieiArticoli);

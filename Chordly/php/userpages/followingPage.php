@@ -86,14 +86,21 @@ try {
         </div>
     </main>
 
-    <!--  JAVASCRIPT -->
+
+
+
+
+    <!--  JAVASCRIPT DA PROVARE-->
     <script>
         // Questa funzione si attiva quando clicchi il pulsante "Smetti di seguire"
         function unfollowUser(userId) {
             // Chiedi conferma all'utente
             if (confirm('Smettere di seguire questo utente?')) {
+
+
                 // Qui andrebbe una chiamata AJAX a un endpoint che gestisce l'unfollow
                 // Per ora è solo un placeholder
+
                 alert('Funzionalità da implementare');
             }
         }

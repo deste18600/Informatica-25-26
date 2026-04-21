@@ -1,4 +1,3 @@
-/* RESET DEGLI STILI DI DEFAULT (sistemato problema browser)*/
 * {
     margin: 0;
     padding: 0;
@@ -100,7 +99,7 @@ body {
     font-size: 14px;
 }
 
-/* ===== STATISTICHE =====*/
+/* STATISTICHE*/
 .profile-stats {
     display: grid;
     grid-template-columns: 1fr 1fr;
