@@ -1,18 +1,12 @@
 <?php
-session_start();
-require_once('../include/dbHandler.php');
-
-if (!isset($_SESSION['userId'])) {
-    header('Location: userLoginpage.php');
-    exit;
-}
+require_once('../include/menuchoice.php');
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header('Location: mainPage.php');
     exit;
 }
 
-$userId   = $_SESSION['userId'];
+$userId = $_SESSION['userId'];
 $idArticolo = (int)$_GET['id'];
 
 try {
@@ -131,18 +125,18 @@ $imgPath  = $articolo['immagine'] ? '../../uploads/articoli/' . htmlspecialchars
                             <?php echo $giaSegui ? 'Stai seguendo' : '+ Segui'; ?>
                         </button>
 
-                        <!-- PULSANTE MESSAGGIO -->
-                        <a href="messagesPage.php?with=<?php echo $articolo['vendId']; ?>&art=<?php echo $idArticolo; ?>"
-                           class="btn-message">
-                            Contatta venditore
-                        </a>
+                        <?php if ($articolo['disponibilita']): ?>
+                        <button class="btn-buy" id="buyBtn" onclick="buyArticle(<?php echo $idArticolo; ?>)">
+                            Acquista
+                        </button>
+                        <?php endif; ?>
                     </div>
                 <?php else: ?>
                     <div class="my-listing-badge">Il tuo annuncio</div>
                 <?php endif; ?>
             </div>
 
-            <div class="post-date">
+            <div class="post-date" style="margin-top: 20px;">
                 Pubblicato il <?php echo date('d/m/Y', strtotime($articolo['dataPost'])); ?>
             </div>
         </div>
@@ -175,7 +169,7 @@ $imgPath  = $articolo['immagine'] ? '../../uploads/articoli/' . htmlspecialchars
     </section>
     <?php endif; ?>
 
-    <!--  LIGHTBOX da completare -->
+    <!--  LIGHTBOX  -->
     <?php if ($imgPath): ?>
     <div class="lightbox" id="lightbox" onclick="closeLightbox()">
         <button class="lightbox-close" onclick="closeLightbox()">✕</button>
@@ -186,6 +180,7 @@ $imgPath  = $articolo['immagine'] ? '../../uploads/articoli/' . htmlspecialchars
     </div>
     <?php endif; ?>
 
+    
     <script>
         // LIGHTBOX 
         function openLightbox() {
@@ -218,6 +213,29 @@ $imgPath  = $articolo['immagine'] ? '../../uploads/articoli/' . htmlspecialchars
                 }
             })
             .catch(() => alert('Errore di rete'));
+        }
+
+        // Funzione per gestire l'acquisto dell'articolo
+        function buyArticle(articleId) {
+            if (!confirm('Sei sicuro di voler acquistare questo articolo? L\'azione è irreversibile.')) {
+                return;
+            }
+
+            fetch('buyArticle.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'articleId=' + articleId
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = 'mainPage.php'; // Reindirizza alla home dopo l'acquisto
+                } else {
+                    alert('Errore durante l\'acquisto: ' + data.error);
+                }
+            })
+            .catch(() => alert('Errore di rete durante l\'acquisto'));
         }
     </script>
 

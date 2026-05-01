@@ -1,4 +1,5 @@
 <?php
+require_once('../include/menuchoice.php');
 
 $userId = $_SESSION['userId'];
 $articleId = $_GET['id'];

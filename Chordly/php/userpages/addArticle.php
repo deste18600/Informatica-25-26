@@ -1,5 +1,6 @@
 <?php
-require_once('../include/dbHandler.php');
+require_once('../include/menuchoice.php');
+
 
 if (!isset($_SESSION['userId'])) {
     header('Location: userLoginpage.php');
@@ -43,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (!in_array($ext, $estensioni)) {
                 $messaggio = "Formato immagine non valido. Usa JPG, PNG o WEBP.";
                 $tipoMessaggio = "error";
-            } elseif ($_FILES['immagine']['size'] > 5 * 1024 * 1024) {
+            } elseif ($_FILES['immagine']['size'] > 15 * 1024 * 1024) {
                 $messaggio = "L'immagine non deve superare 5MB.";
                 $tipoMessaggio = "error";
             } else {
@@ -180,7 +181,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                               rows="6"></textarea>
                 </div>
 
-                <!-- UPLOAD IMMAGINE  -->
+                <!-- UPLOAD DELL'IMMAGINE  -->
                 <div class="form-group">
                     <label>Foto articolo</label>
                     <div class="upload-area" id="uploadArea">

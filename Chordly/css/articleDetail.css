@@ -160,6 +160,19 @@ body {
 }
 .btn-message:hover { background: #d4b06a; }
 
+.btn-buy {
+    flex: 1; padding: 10px 20px;
+    border-radius: 8px;
+    background: #4CAF50; /* Un colore verde per l'acquisto */
+    color: #fff;
+    font-size: 14px; font-weight: 500;
+    text-decoration: none; text-align: center;
+    transition: background 0.2s;
+    border: none;
+    cursor: pointer;
+}
+.btn-buy:hover { background: #45a049; }
+
 .my-listing-badge {
     font-size: 13px; color: rgba(255,255,255,0.4);
     font-style: italic;

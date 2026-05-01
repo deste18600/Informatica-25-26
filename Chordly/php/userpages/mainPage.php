@@ -1,4 +1,6 @@
 <?php
+require_once('../include/menuchoice.php');
+ 
 // Salva l'ID dell'utente in una variabile per usarla dopo
 $userId = $_SESSION['userId'];
 // RECUPERA GLI ARTICOLI DAL DATABASE
@@ -64,9 +66,8 @@ try {
         <!-- MENU DELLA NAVBAR -->
         <div class="nav-actions">
             <a href="followingPage.php" class="nav-link">Seguiti</a>
-            <a href="messagesPage.php" class="nav-link">Messaggi</a>
             <a href="profilePage.php" class="nav-link">Profilo</a>
-            <a href="/CHORDLY/php/include/logout.php" class="nav-link">Esci</a>
+            <a href="../include/logout.php" class="nav-link">Esci</a>
             <!-- Pulsante per vendere articoli -->
             <a href="addArticle.php" class="btn-sell">+ Vendi</a>
         </div>
@@ -122,42 +123,36 @@ try {
                 ?>
                 
                 <!-- UNA CARD DEL PRODOTTO -->
-                <div class="product-card" 
-                     data-category="<?php echo htmlspecialchars($articolo['categoria']); ?>"
-                     data-stato="<?php echo htmlspecialchars($articolo['stato']); ?>"
-                     data-prezzo="<?php echo $articolo['prezzo']; ?>"
-                     onclick="openArticle(<?php echo $articolo['idArticolo']; ?>)">
-                    
-                    <!-- IMMAGINE DEL PRODOTTO -->
-<div class="card-image-wrapper">
-    <?php if ($articolo['immagine']): ?>
-        <img src="../../uploads/articoli/<?php echo htmlspecialchars($articolo['immagine']); ?>"
-             alt="<?php echo htmlspecialchars($articolo['titolo']); ?>"
-             class="card-image"
-             style="width:100%; height:100%; object-fit:cover;">
-    <?php else: ?>
-        <div class="card-image placeholder-img" 
-             style="background: linear-gradient(135deg, #1a1a1a 0%, #111 100%); display: flex; align-items: center; justify-content: center; font-size: 48px;">
-            🎸
-        </div>
-    <?php endif; ?>
+                 <div class="product-card" 
+     data-category="<?php echo htmlspecialchars($articolo['categoria']); ?>"
+     data-stato="<?php echo htmlspecialchars($articolo['stato']); ?>"
+     data-prezzo="<?php echo $articolo['prezzo']; ?>"
+     onclick="openArticle(<?php echo $articolo['idArticolo']; ?>)">
 
-    <span class="stato-badge <?php echo htmlspecialchars($articolo['stato']); ?>">
-        <?php echo htmlspecialchars($articolo['stato']); ?>
-    </span>
+    <div class="card-image-wrapper">
+        <?php if ($articolo['immagine']): ?>
+            <img src="../../uploads/articoli/<?php echo htmlspecialchars($articolo['immagine']); ?>"
+                 alt="<?php echo htmlspecialchars($articolo['titolo']); ?>"
+                 class="card-image">
+        <?php else: ?>
+            <div class="card-image placeholder-img" 
+                 style="font-size: 48px;">
+                🎸
+            </div>
+        <?php endif; ?>
+        <span class="stato-badge <?php echo htmlspecialchars($articolo['stato']); ?>">
+            <?php echo htmlspecialchars($articolo['stato']); ?>
+        </span>
+    </div>
+
+    <div class="card-body">
+        <div class="card-price">€ <?php echo number_format($articolo['prezzo'], 2, ',', '.'); ?></div>
+        <div class="card-title"><?php echo htmlspecialchars($articolo['titolo']); ?></div>
+        <div class="card-category"><?php echo htmlspecialchars(ucfirst($articolo['categoria'])); ?></div>
+    </div>
+
 </div>
-
-                    <!-- INFORMAZIONI DEL PRODOTTO -->
-                    <div class="card-body">
-                        <!-- Prezzo in euro -->
-                        <div class="card-price">€ <?php echo number_format($articolo['prezzo'], 2, ',', '.'); ?></div>
-                        <!-- Titolo articolo -->
-                        <div class="card-title"><?php echo htmlspecialchars($articolo['titolo']); ?></div>
-                        <!-- Categoria (Chitarre, Bassi, ecc) -->
-                        <div class="card-category"><?php echo htmlspecialchars(ucfirst($articolo['categoria'])); ?></div>
-                        </div>
-                    </div>
-                </div>
+              
                 
                 <?php endforeach; ?>
             <?php endif; ?>

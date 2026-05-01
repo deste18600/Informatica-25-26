@@ -1,4 +1,5 @@
 <?php
+require_once('../include/menuchoice.php');
 
 $userId = $_SESSION['userId'];
 
@@ -77,8 +78,8 @@ try {
                             <button class="btn-unfollow" onclick="unfollowUser(<?php echo $utente['idUtente']; ?>)">
                                 Smetti di seguire
                             </button>
-                            <!-- Pulsante per vedere il profilo dell'utente -->
-                            <a href="#" class="btn-view">Vedi profilo</a>
+                            <!-- Pulsante per vedere il profilo pubblico dell'utente -->
+                            <a href="publicProfile.php?id=<?php echo $utente['idUtente']; ?>" class="btn-view">Vedi profilo</a>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -94,14 +95,21 @@ try {
     <script>
         // Questa funzione si attiva quando clicchi il pulsante "Smetti di seguire"
         function unfollowUser(userId) {
-            // Chiedi conferma all'utente
             if (confirm('Smettere di seguire questo utente?')) {
-
-
-                // Qui andrebbe una chiamata AJAX a un endpoint che gestisce l'unfollow
-                // Per ora è solo un placeholder
-
-                alert('Funzionalità da implementare');
+                fetch('followUser.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'idSeguito=' + userId + '&action=unfollow'
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Errore: ' + data.error);
+                    }
+                })
+                .catch(() => alert('Errore di rete'));
             }
         }
     </script>

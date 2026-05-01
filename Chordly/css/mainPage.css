@@ -25,6 +25,15 @@ body {
     border-bottom: 1px solid #c5a059; /* linea dorata sotto */
 }
 
+.card-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 .nav-logo {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 26px;
@@ -191,6 +200,25 @@ body {
     aspect-ratio: 3/4; /* formato ritratto, come una copertina */
     background: #111;
     overflow: hidden;
+}
+
+.card-image-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: #0d0d0d;
+    overflow: hidden;
+}
+
+
+/*per contenenere in modo adeguato tutti i tipi e grandezze di immagini*/
+.card-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .card-image {

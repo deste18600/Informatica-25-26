@@ -4,7 +4,14 @@ $jsonPath = __DIR__ . '/pages.json';
 
 if (file_exists($jsonPath)) {
     $json = file_get_contents($jsonPath);
-    $obj = json_decode($json);
+    // Se il JSON è corrotto, json_decode restituisce null. 
+    // Usiamo l'operatore ?: per assegnare un oggetto di default in caso di errore.
+    $obj = json_decode($json) ?: (object)[
+        'loggedInPages' => [],
+        'DBPages' => [],
+        'userpages' => [],
+        'adminpages' => []
+    ];
 } else {
     // Se il file non esiste, crea un oggetto vuoto per evitare il Fatal Error
     $obj = (object)[
@@ -28,7 +35,8 @@ if(in_array($pageName, $obj->DBPages)){
 }
 
 if(in_array($pageName, $obj->userpages)){
-    include __DIR__ . '/userMenu.php';
+    // Solo le pagine in userpages richiedono che l'utente sia autenticato
+    require_once __DIR__ . '/loggedin.php';
 } elseif(in_array($pageName, $obj->adminpages)){
     include __DIR__ . '/adminMenu.php';
 }

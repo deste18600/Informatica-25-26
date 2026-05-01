@@ -1,9 +1,8 @@
 <?php
+require_once('../include/menuchoice.php');
 
 $userId = $_SESSION['userId'];
 
-//  RECUPERA I DATI DAL DATABASE
- 
 try {
     // Informazioni dell'utente
     $sqlUser = "SELECT nome, cognome, email, dataRegistrazione FROM Utente WHERE idUtente = :userId";
@@ -12,22 +11,23 @@ try {
     $sthUser->execute();
     $user = $sthUser->fetch();
 
-    // Statistiche 
+    // Conteggio articoli
     $sqlArticoliCount = "SELECT COUNT(*) as totale FROM ArticoloInVendita WHERE fkUtenteId = :userId";
     $sthArticoliCount = DBHandler::getPDO()->prepare($sqlArticoliCount);
     $sthArticoliCount->bindParam(':userId', $userId, PDO::PARAM_INT);
     $sthArticoliCount->execute();
     $stats = $sthArticoliCount->fetch();
 
-    // Statistiche (Follower)
+    // Follower
     $sqlSeguaci = "SELECT COUNT(*) as totale FROM Segue WHERE idSeguito = :userId";
     $sthSeguaci = DBHandler::getPDO()->prepare($sqlSeguaci);
     $sthSeguaci->bindParam(':userId', $userId, PDO::PARAM_INT);
     $sthSeguaci->execute();
     $followers = $sthSeguaci->fetch();
 
-    // LISTA ARTICOLI PERSONALI 
-    $sqlMieiArticoli = "SELECT idArticolo, titolo, prezzo, categoria, stato FROM ArticoloInVendita 
+    // Lista articoli personali
+    $sqlMieiArticoli = "SELECT idArticolo, titolo, prezzo, categoria, stato 
+                        FROM ArticoloInVendita 
                         WHERE fkUtenteId = :userId ORDER BY dataPost DESC";
     $sthMieiArticoli = DBHandler::getPDO()->prepare($sqlMieiArticoli);
     $sthMieiArticoli->bindParam(':userId', $userId, PDO::PARAM_INT);
@@ -46,6 +46,19 @@ try {
     <link rel="stylesheet" href="../../css/profilePage.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <title>Profilo - Chordly</title>
+    <style>
+        .review-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .review-rating { color: #c5a059; margin-bottom: 5px; }
+        .review-author { font-size: 14px; font-weight: 500; color: #fff; }
+        .review-text { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 5px; }
+        .average-info { color: #c5a059; margin-bottom: 20px; font-weight: 500; }
+    </style>
 </head>
 <body>
 
@@ -55,6 +68,8 @@ try {
     </nav>
 
     <main class="container">
+
+        <!--  CARD PROFILO  -->
         <div class="profile-card">
             <div class="profile-header">
                 <div class="profile-avatar">
@@ -81,7 +96,6 @@ try {
 
             <div class="profile-actions">
                 <a href="addArticle.php" class="btn-action btn-sell">+ Vendi articolo</a>
-                <button onclick="editProfile()" class="btn-action btn-edit">Modifica profilo</button>
             </div>
 
             <p class="join-date">
@@ -89,48 +103,34 @@ try {
             </p>
         </div>
 
-        <div class="my-articles-section" style="margin-top: 40px; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto;">
-            <h2 style="color: white; font-family: 'Bebas Neue', sans-serif; font-size: 2rem; border-bottom: 2px solid #ff4d4d; display: inline-block; margin-bottom: 20px;">
-                I tuoi annunci
-            </h2>
+        <!-- I TUOI ANNUNCI  -->
+        <div class="section-block">
+            <h2 class="section-title">I tuoi annunci</h2>
 
-            <div class="articles-list">
-                <?php if (empty($mieiArticoli)): ?>
-                    <div style="text-align: center; padding: 30px; background: rgba(255,255,255,0.05); border-radius: 10px; color: #888;">
-                        Non hai ancora messo nulla in vendita.
-                    </div>
-                <?php else: ?>
-                    <?php foreach ($mieiArticoli as $art): ?>
-                        <div class="article-item" style="background: #1a1a1a; padding: 15px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; transition: transform 0.2s;">
-                            <div>
-                                <strong style="color: white; font-size: 1.1rem; display: block; margin-bottom: 4px;">
-                                    <?php echo htmlspecialchars($art['titolo']); ?>
-                                </strong>
-                                <span style="color: #ff4d4d; font-weight: bold; font-family: 'DM Sans', sans-serif;">
-                                    € <?php echo number_format($art['prezzo'], 2, ',', '.'); ?>
-                                </span>
-                                <span style="background: #333; color: #ccc; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; margin-left: 10px; text-transform: uppercase;">
-                                    <?php echo htmlspecialchars($art['categoria']); ?>
-                                </span>
-                            </div>
-                            
-                            <a href="deleteArticle.php?id=<?php echo $art['idArticolo']; ?>" 
-                               onclick="return confirm('Sei sicuro di voler eliminare questo annuncio? Questa azione è irreversibile.')" 
-                               style="background: #ff4d4d; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: bold; transition: background 0.3s;">
-                                Elimina
-                            </a>
+            <?php if (empty($mieiArticoli)): ?>
+                <div class="empty-box">Non hai ancora messo nulla in vendita.</div>
+            <?php else: ?>
+                <?php foreach ($mieiArticoli as $art): ?>
+                    <div class="article-item">
+                        <div class="article-item-info">
+                            <strong><?php echo htmlspecialchars($art['titolo']); ?></strong>
+                            <span class="article-item-price">
+                                € <?php echo number_format($art['prezzo'], 2, ',', '.'); ?>
+                            </span>
+                            <span class="article-item-cat">
+                                <?php echo htmlspecialchars($art['categoria']); ?>
+                            </span>
                         </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
+                        <a href="deleteArticle.php?id=<?php echo $art['idArticolo']; ?>"
+                           onclick="return confirm('Sei sicuro di voler eliminare questo annuncio?')"
+                           class="btn-delete">
+                            Elimina
+                        </a>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
+
     </main>
-
-    <script>
-        function editProfile() {
-            alert('Funzionalità modifica profilo in sviluppo');
-        }
-    </script>
-
 </body>
 </html>
