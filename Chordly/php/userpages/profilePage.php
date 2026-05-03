@@ -1,40 +1,40 @@
 <?php
+// 1. Richiamiamo il controllore centrale
 require_once('../include/menuchoice.php');
 
-$userId = $_SESSION['userId'];
+// Salviamo il nostro ID
+$idUtenteLoggato = $_SESSION['userId'];
 
 try {
-    // Informazioni dell'utente
-    $sqlUser = "SELECT nome, cognome, email, dataRegistrazione FROM Utente WHERE idUtente = :userId";
-    $sthUser = DBHandler::getPDO()->prepare($sqlUser);
-    $sthUser->bindParam(':userId', $userId, PDO::PARAM_INT);
-    $sthUser->execute();
-    $user = $sthUser->fetch();
+    // === BLOCCO 1: Dati Personali ===
+    $sqlUtente = "SELECT nome, cognome, email, dataRegistrazione FROM Utente WHERE idUtente = :userId";
+    $istruzioneUtente = DBHandler::getPDO()->prepare($sqlUtente);
+    $istruzioneUtente->execute([':userId' => $idUtenteLoggato]);
+    $datiUtente = $istruzioneUtente->fetch();
 
-    // Conteggio articoli in vendita
-    $sqlArticoliCount = "SELECT COUNT(*) as totale FROM ArticoloInVendita WHERE fkUtenteId = :userId";
-    $sthArticoliCount = DBHandler::getPDO()->prepare($sqlArticoliCount);
-    $sthArticoliCount->bindParam(':userId', $userId, PDO::PARAM_INT);
-    $sthArticoliCount->execute();
-    $stats = $sthArticoliCount->fetch();
+    // === BLOCCO 2: Conteggio dei tuoi articoli in vendita ===
+    $sqlConteggioArticoli = "SELECT COUNT(*) as totale FROM ArticoloInVendita WHERE fkUtenteId = :userId";
+    $istruzioneConteggio = DBHandler::getPDO()->prepare($sqlConteggioArticoli);
+    $istruzioneConteggio->execute([':userId' => $idUtenteLoggato]);
+    $statisticheArticoli = $istruzioneConteggio->fetch();
 
-    // Follower
+    // === BLOCCO 3: Quante persone ti seguono? ===
     $sqlSeguaci = "SELECT COUNT(*) as totale FROM Segue WHERE idSeguito = :userId";
-    $sthSeguaci = DBHandler::getPDO()->prepare($sqlSeguaci);
-    $sthSeguaci->bindParam(':userId', $userId, PDO::PARAM_INT);
-    $sthSeguaci->execute();
-    $followers = $sthSeguaci->fetch();
+    $istruzioneSeguaci = DBHandler::getPDO()->prepare($sqlSeguaci);
+    $istruzioneSeguaci->execute([':userId' => $idUtenteLoggato]);
+    $numeroFollower = $istruzioneSeguaci->fetch();
 
-    // Lista articoli personali in vendita
+    // === BLOCCO 4: La lista di tutti i TUOI annunci ===
     $sqlMieiArticoli = "SELECT idArticolo, titolo, prezzo, categoria, stato 
                         FROM ArticoloInVendita 
                         WHERE fkUtenteId = :userId ORDER BY dataPost DESC";
-    $sthMieiArticoli = DBHandler::getPDO()->prepare($sqlMieiArticoli);
-    $sthMieiArticoli->bindParam(':userId', $userId, PDO::PARAM_INT);
-    $sthMieiArticoli->execute();
-    $mieiArticoli = $sthMieiArticoli->fetchAll();
+    $istruzioneMieiArticoli = DBHandler::getPDO()->prepare($sqlMieiArticoli);
+    $istruzioneMieiArticoli->execute([':userId' => $idUtenteLoggato]);
+    // fetchAll() perché potresti avere più di un annuncio
+    $mieiArticoli = $istruzioneMieiArticoli->fetchAll();
 
-    // Articoli acquistati
+    // === BLOCCO 5: La lista di ciò che hai ACQUISTATO ===
+    // Uniamo (JOIN) tre tabelle: Acquisti, Articoli e Utente (per sapere il nome di chi ce lo ha venduto)
     $sqlAcquisti = "SELECT a.idArticolo, a.titolo, a.prezzo, a.categoria, a.immagine,
                            u.nome as venditore_nome, u.cognome as venditore_cognome,
                            ac.dataAcquisto
@@ -43,13 +43,12 @@ try {
                     JOIN Utente u ON a.fkUtenteId = u.idUtente
                     WHERE ac.fkAcquirenteId = :userId
                     ORDER BY ac.dataAcquisto DESC";
-    $sthAcquisti = DBHandler::getPDO()->prepare($sqlAcquisti);
-    $sthAcquisti->bindParam(':userId', $userId, PDO::PARAM_INT);
-    $sthAcquisti->execute();
-    $acquisti = $sthAcquisti->fetchAll();
+    $istruzioneAcquisti = DBHandler::getPDO()->prepare($sqlAcquisti);
+    $istruzioneAcquisti->execute([':userId' => $idUtenteLoggato]);
+    $mieiAcquisti = $istruzioneAcquisti->fetchAll();
 
 } catch (PDOException $e) {
-    die("Errore nel recupero dati: " . $e->getMessage());
+    die("Errore nel recupero dati del profilo: " . $e->getMessage());
 }
 ?>
 <!DOCTYPE html>
@@ -59,7 +58,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../css/profilePage.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-    <title>Profilo - Chordly</title>
+    <title>Il tuo Profilo - Chordly</title>
 </head>
 <body>
 
@@ -70,31 +69,33 @@ try {
 
     <main class="container">
 
-        <!-- CARD PROFILO -->
+        <!-- CARD PRINCIPALE DEL PROFILO -->
         <div class="profile-card">
             <div class="profile-header">
                 <div class="profile-avatar">
-                    <?php echo strtoupper(substr($user['nome'], 0, 1) . substr($user['cognome'], 0, 1)); ?>
+                    <!-- Estraiamo le iniziali dal nome e cognome -->
+                    <?php echo strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUtente['cognome'], 0, 1)); ?>
                 </div>
                 <h1 class="profile-name">
-                    <?php echo htmlspecialchars($user['nome'] . ' ' . $user['cognome']); ?>
+                    <?php echo htmlspecialchars($datiUtente['nome'] . ' ' . $datiUtente['cognome']); ?>
                 </h1>
                 <p class="profile-email">
-                    <?php echo htmlspecialchars($user['email']); ?>
+                    <?php echo htmlspecialchars($datiUtente['email']); ?>
                 </p>
             </div>
 
+            <!-- STATISTICHE (Numeri) -->
             <div class="profile-stats">
                 <div class="stat">
-                    <div class="stat-number"><?php echo $stats['totale']; ?></div>
+                    <div class="stat-number"><?php echo $statisticheArticoli['totale']; ?></div>
                     <p class="stat-label">Articoli in vendita</p>
                 </div>
                 <div class="stat">
-                    <div class="stat-number"><?php echo $followers['totale']; ?></div>
+                    <div class="stat-number"><?php echo $numeroFollower['totale']; ?></div>
                     <p class="stat-label">Follower</p>
                 </div>
                 <div class="stat">
-                    <div class="stat-number"><?php echo count($acquisti); ?></div>
+                    <div class="stat-number"><?php echo count($mieiAcquisti); ?></div>
                     <p class="stat-label">Acquisti effettuati</p>
                 </div>
             </div>
@@ -104,30 +105,32 @@ try {
             </div>
 
             <p class="join-date">
-                Membro dal <?php echo date('d/m/Y', strtotime($user['dataRegistrazione'])); ?>
+                Membro dal <?php echo date('d/m/Y', strtotime($datiUtente['dataRegistrazione'])); ?>
             </p>
         </div>
 
-        <!-- I TUOI ANNUNCI -->
+        <!-- SEZIONE: I TUOI ANNUNCI (Quelli che stai vendendo) -->
         <div class="section-block">
             <h2 class="section-title">I tuoi annunci</h2>
 
             <?php if (empty($mieiArticoli)): ?>
                 <div class="empty-box">Non hai ancora messo nulla in vendita.</div>
             <?php else: ?>
-                <?php foreach ($mieiArticoli as $art): ?>
+                <?php foreach ($mieiArticoli as $annuncio): ?>
                     <div class="article-item">
                         <div class="article-item-info">
-                            <strong><?php echo htmlspecialchars($art['titolo']); ?></strong>
-                            <span class="article-item-price">
-                                € <?php echo number_format($art['prezzo'], 2, ',', '.'); ?>
-                            </span>
-                            <span class="article-item-cat">
-                                <?php echo htmlspecialchars($art['categoria']); ?>
-                            </span>
+                            <strong><?php echo htmlspecialchars($annuncio['titolo']); ?></strong>
+                            <span class="article-item-price">€ <?php echo number_format($annuncio['prezzo'], 2, ',', '.'); ?></span>
+                            <span class="article-item-cat"><?php echo htmlspecialchars($annuncio['categoria']); ?></span>
                         </div>
-                        <a href="deleteArticle.php?id=<?php echo $art['idArticolo']; ?>"
-                           onclick="return confirm('Sei sicuro di voler eliminare questo annuncio?')"
+                        
+                        <!-- 
+                          PULSANTE ELIMINA: 
+                          L'attributo onclick="return confirm(...)" è un trucco JavaScript velocissimo 
+                          per mostrare una finestrella di conferma prima di far cliccare il link!
+                        -->
+                        <a href="deleteArticle.php?id=<?php echo $annuncio['idArticolo']; ?>"
+                           onclick="return confirm('Sei sicuro di voler eliminare definitivamente questo annuncio?')"
                            class="btn-delete">
                             Elimina
                         </a>
@@ -136,30 +139,26 @@ try {
             <?php endif; ?>
         </div>
 
-        <!-- ARTICOLI ACQUISTATI -->
+        <!-- SEZIONE: ARTICOLI ACQUISTATI -->
         <div class="section-block">
             <h2 class="section-title">Acquisti effettuati</h2>
 
-            <?php if (empty($acquisti)): ?>
+            <?php if (empty($mieiAcquisti)): ?>
                 <div class="empty-box">Non hai ancora acquistato nessun articolo.</div>
             <?php else: ?>
-                <?php foreach ($acquisti as $acq): ?>
+                <?php foreach ($mieiAcquisti as $acquisto): ?>
                     <div class="article-item">
                         <div class="article-item-info">
-                            <strong><?php echo htmlspecialchars($acq['titolo']); ?></strong>
-                            <span class="article-item-price">
-                                € <?php echo number_format($acq['prezzo'], 2, ',', '.'); ?>
+                            <strong><?php echo htmlspecialchars($acquisto['titolo']); ?></strong>
+                            <span class="article-item-price">€ <?php echo number_format($acquisto['prezzo'], 2, ',', '.'); ?></span>
+                            <span class="article-item-cat">
+                                <?php echo htmlspecialchars($acquisto['categoria']); ?>
+                                · Venduto da <?php echo htmlspecialchars($acquisto['venditore_nome'] . ' ' . $acquisto['venditore_cognome']); ?>
                             </span>
                             <span class="article-item-cat">
-                                <?php echo htmlspecialchars($acq['categoria']); ?>
-                                · Venduto da <?php echo htmlspecialchars($acq['venditore_nome'] . ' ' . $acq['venditore_cognome']); ?>
-                            </span>
-                            <span class="article-item-cat">
-                                Acquistato il <?php echo date('d/m/Y', strtotime($acq['dataAcquisto'])); ?>
+                                Acquistato il <?php echo date('d/m/Y', strtotime($acquisto['dataAcquisto'])); ?>
                             </span>
                         </div>
-                    
-                        </a>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>

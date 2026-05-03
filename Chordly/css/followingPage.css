@@ -1,6 +1,4 @@
-/* followingPage.css */
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap');
-
+/* ===== 1. RESET E BASE ===== */
 * {
     margin: 0;
     padding: 0;
@@ -14,7 +12,7 @@ body {
     min-height: 100vh;
 }
 
-/* NAVBAR */
+/* ===== 2. NAVBAR ===== */
 .navbar {
     display: flex;
     align-items: center;
@@ -41,7 +39,7 @@ body {
     padding: 8px 16px;
     border: 1px solid rgba(255,255,255,0.2);
     border-radius: 20px;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
 .btn-back:hover {
@@ -49,7 +47,7 @@ body {
     border-color: rgba(197, 160, 89, 0.5);
 }
 
-/* CONTENITORE */
+/* ===== 3. LAYOUT CONTENITORE ===== */
 .container {
     max-width: 800px;
     margin: 0 auto;
@@ -62,14 +60,13 @@ h1 {
     color: white;
 }
 
-/* LISTA SEGUITI */
+/* ===== 4. LISTA UTENTI SEGUITI ===== */
 .seguiti-list {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-/* CARD SINGOLO UTENTE */
 .seguiti-card {
     display: flex;
     justify-content: space-between;
@@ -78,14 +75,13 @@ h1 {
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 12px;
     padding: 20px;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s ease;
 }
 
 .seguiti-card:hover {
     border-color: rgba(197, 160, 89, 0.5);
 }
 
-/* INFO UTENTE */
 .user-info {
     display: flex;
     align-items: center;
@@ -118,7 +114,7 @@ h1 {
     margin: 0;
 }
 
-/* PULSANTI */
+/* ===== 5. PULSANTI AZIONE ===== */
 .user-actions {
     display: flex;
     gap: 12px;
@@ -131,9 +127,8 @@ h1 {
     font-size: 13px;
     border: none;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     text-decoration: none;
-    font-family: 'DM Sans', sans-serif;
 }
 
 .btn-unfollow {
@@ -157,7 +152,7 @@ h1 {
     background: #d4b06a;
 }
 
-/* STATO VUOTO */
+/* ===== 6. STATO VUOTO (NESSUN SEGUITO) ===== */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -177,33 +172,9 @@ h1 {
     border-radius: 20px;
     text-decoration: none;
     font-weight: 500;
-    transition: background 0.2s;
+    transition: background 0.2s ease;
 }
 
 .btn-primary:hover {
     background: #d4b06a;
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-    .container {
-        padding: 20px 16px;
-    }
-
-    .seguiti-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-    }
-
-    .user-actions {
-        width: 100%;
-        flex-direction: column;
-    }
-
-    .btn-unfollow,
-    .btn-view {
-        width: 100%;
-        text-align: center;
-    }
 }

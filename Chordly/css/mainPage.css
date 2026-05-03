@@ -1,3 +1,6 @@
+/* ===== 1. RESET E LAYOUT BASE ===== */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -11,7 +14,7 @@ body {
     color: #e5e1d8;
 }
 
-/* NAVBAR */
+/* ===== 2. NAVBAR ===== */
 .navbar {
     position: sticky;
     top: 0;
@@ -36,7 +39,6 @@ body {
 .nav-search {
     flex: 1;
     max-width: 500px;
-    position: relative;
 }
 
 .nav-search input {
@@ -46,8 +48,6 @@ body {
     border: 1px solid #333;
     background: #1a1a1a;
     color: white;
-    font-size: 14px;
-    font-family: 'DM Sans', sans-serif;
     outline: none;
 }
 
@@ -62,6 +62,7 @@ body {
     color: #888;
     text-decoration: none;
     font-size: 14px;
+    transition: color 0.2s ease;
 }
 
 .nav-link:hover {
@@ -78,7 +79,7 @@ body {
     border-radius: 20px;
 }
 
-/* BARRA FILTRI */
+/* ===== 3. BARRA FILTRI ===== */
 .filters-bar {
     display: flex;
     align-items: center;
@@ -104,6 +105,7 @@ body {
     font-family: 'DM Sans', sans-serif;
     cursor: pointer;
     white-space: nowrap;
+    outline: none;
 }
 
 .chip.active {
@@ -115,9 +117,7 @@ body {
 
 .select-chip {
     appearance: none;
-    -webkit-appearance: none;
     padding-right: 28px;
-    cursor: pointer;
 }
 
 .select-chip option {
@@ -132,7 +132,7 @@ body {
     margin: 0 4px;
 }
 
-/* GRIGLIA PRODOTTI */
+/* ===== 4. GRIGLIA ARTICOLI ===== */
 .main-content {
     padding: 28px 28px 60px;
     max-width: 1400px;
@@ -151,48 +151,44 @@ body {
     gap: 16px;
 }
 
-/* CARD PRODOTTO */
+/* Singola Card */
 .product-card {
     background: #1a1a1a;
     border: 1px solid #333;
     border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
+    transition: border-color 0.2s ease;
 }
 
 .product-card:hover {
     border-color: #c5a059;
 }
 
-/* CONTENITORE IMMAGINE - definito una sola volta */
 .card-image-wrapper {
     position: relative;
     width: 100%;
-    aspect-ratio: 3/4;
+    aspect-ratio: 3 / 4;
     background: #0d0d0d;
-    overflow: hidden;
 }
 
-/* immagine dentro il contenitore */
-.card-image-wrapper img,
 .card-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-/* placeholder quando non c'è immagine */
 .placeholder-img {
     width: 100%;
     height: 100%;
-    background: #111;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 48px;
+    background: #111;
 }
 
-/* BADGE STATO */
+/* Badge Stato */
 .stato-badge {
     position: absolute;
     top: 8px;
@@ -202,14 +198,27 @@ body {
     padding: 3px 9px;
     border-radius: 10px;
     text-transform: uppercase;
-    border: 1px solid #333;
-    color: #888;
 }
 
-.stato-badge.ottimo    { color: #c5a059; border-color: #c5a059; }
-.stato-badge.difettato { color: #cc6666; border-color: #cc6666; }
+.stato-badge.ottimo {
+    color: #c5a059;
+    border: 1px solid #c5a059;
+    background: rgba(10,10,10,0.8);
+}
 
-/* TESTO CARD */
+.stato-badge.buono {
+    color: #fff;
+    border: 1px solid #fff;
+    background: rgba(10,10,10,0.8);
+}
+
+.stato-badge.difettato {
+    color: #cc6666;
+    border: 1px solid #cc6666;
+    background: rgba(10,10,10,0.8);
+}
+
+/* Testo Card */
 .card-body {
     padding: 10px 12px 12px;
 }
@@ -234,5 +243,4 @@ body {
 .card-category {
     color: #888;
     font-size: 11px;
-    margin-bottom: 8px;
 }

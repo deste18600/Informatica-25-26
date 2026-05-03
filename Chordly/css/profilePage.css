@@ -1,10 +1,10 @@
+/* ===== 1. RESET E BASE ===== */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Body*/
 body {
     font-family: 'DM Sans', sans-serif;
     background: #0a0a0a;
@@ -12,7 +12,7 @@ body {
     min-height: 100vh;
 }
 
-/* Barra di navigazione*/
+/* ===== 2. NAVBAR ===== */
 .navbar {
     display: flex;
     align-items: center;
@@ -23,7 +23,6 @@ body {
     border-bottom: 1px solid rgba(197, 160, 89, 0.2);
 }
 
-/* Logo */
 .nav-logo {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 26px;
@@ -32,7 +31,6 @@ body {
     text-decoration: none;
 }
 
-/* Bottone torna alla home */
 .btn-back {
     margin-left: auto;
     color: rgba(255,255,255,0.65);
@@ -41,7 +39,7 @@ body {
     padding: 8px 16px;
     border: 1px solid rgba(255,255,255,0.2);
     border-radius: 20px;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
 .btn-back:hover {
@@ -49,14 +47,13 @@ body {
     border-color: rgba(197, 160, 89, 0.5);
 }
 
-/*  CONTENITORE PRINCIPALE */
+/* ===== 3. LAYOUT PRINCIPALE ===== */
 .container {
     max-width: 600px;
     margin: 0 auto;
     padding: 40px 28px;
 }
 
-/* CARD DEL PROFILO*/
 .profile-card {
     background: rgba(15, 15, 15, 0.7);
     border: 1px solid rgba(255,255,255,0.08);
@@ -64,13 +61,12 @@ body {
     padding: 40px;
 }
 
-/* SEZIONE AVATAR E NOME */
+/* ===== 4. INTESTAZIONE E STATISTICHE ===== */
 .profile-header {
     text-align: center;
     margin-bottom: 40px;
 }
 
-/* Avatar grande */
 .profile-avatar {
     width: 80px;
     height: 80px;
@@ -85,21 +81,18 @@ body {
     margin: 0 auto 24px;
 }
 
-/* Nome e cognome */
 .profile-name {
     font-size: 28px;
     margin: 0 0 8px;
     color: white;
 }
 
-/* Email */
 .profile-email {
     color: rgba(255,255,255,0.4);
     margin: 0;
     font-size: 14px;
 }
 
-/* STATISTICHE*/
 .profile-stats {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -109,12 +102,10 @@ body {
     padding-bottom: 32px;
 }
 
-/* Una singola statistica */
 .stat {
     text-align: center;
 }
 
-/* Numero della statistica (es: 5, 12) */
 .stat-number {
     font-size: 24px;
     font-weight: 500;
@@ -122,35 +113,31 @@ body {
     margin-bottom: 8px;
 }
 
-/* Etichetta della statistica (es: "Articoli in vendita") */
 .stat-label {
     font-size: 12px;
     color: #c5a059;
     margin: 0;
 }
 
-/* Pulsanti profilo*/
+/* ===== 5. PULSANTI PROFILO ===== */
 .profile-actions {
     display: flex;
     gap: 12px;
 }
 
-/* Stile generale dei pulsanti */
 .btn-action {
     flex: 1;
     padding: 12px 24px;
     border-radius: 8px;
     border: none;
     cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
     font-weight: 500;
     font-size: 14px;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     text-decoration: none;
     text-align: center;
 }
 
-/* Pulsante "Vendi articolo" (primario) */
 .btn-sell {
     background: #c5a059;
     color: #111;
@@ -160,7 +147,6 @@ body {
     background: #d4b06a;
 }
 
-/* Pulsante "Modifica profilo" (secondario) */
 .btn-edit {
     background: transparent;
     border: 1px solid rgba(255,255,255,0.2);
@@ -172,7 +158,6 @@ body {
     color: #c5a059;
 }
 
-/* DATA ISCRIZIONE */
 .join-date {
     text-align: center;
     font-size: 12px;
@@ -180,8 +165,7 @@ body {
     margin-top: 32px;
 }
 
-/* --- SEZIONI AGGIUNTIVE PER GLI ARTICOLI --- */
-
+/* ===== 6. LISTA ARTICOLI IN VENDITA ===== */
 .section-block {
     margin-top: 40px;
 }
@@ -197,7 +181,6 @@ body {
     line-height: 1;
 }
 
-/* Messaggio se non ci sono articoli */
 .empty-box {
     background: rgba(255, 255, 255, 0.03);
     border: 1px dashed rgba(255, 255, 255, 0.1);
@@ -208,7 +191,6 @@ body {
     font-size: 14px;
 }
 
-/* Singola riga dell'articolo */
 .article-item {
     background: rgba(15, 15, 15, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -218,7 +200,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: transform 0.2s, border-color 0.2s;
+    transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .article-item:hover {
@@ -226,7 +208,6 @@ body {
     transform: translateX(4px);
 }
 
-/* Info testuali dell'articolo */
 .article-item-info {
     display: flex;
     flex-direction: column;
@@ -252,7 +233,6 @@ body {
     color: rgba(255, 255, 255, 0.3);
 }
 
-/* Bottone Elimina */
 .btn-delete {
     color: #ff4d4d;
     text-decoration: none;
@@ -260,7 +240,7 @@ body {
     padding: 6px 12px;
     border: 1px solid rgba(255, 77, 77, 0.2);
     border-radius: 6px;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     background: transparent;
 }
 

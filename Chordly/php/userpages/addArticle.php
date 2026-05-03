@@ -1,66 +1,95 @@
 <?php
+// 1. Richiamiamo il file centrale (che gestisce sessione, login e database)
 require_once('../include/menuchoice.php');
 
-if (!isset($_SESSION['userId'])) {
-    header('Location: userLoginpage.php');
-    exit;
-}
-
+// Salviamo l'ID dell'utente per collegarlo all'articolo che sta creando
 $userId = $_SESSION['userId'];
+
+// Prepariamo due variabili vuote che useremo per mostrare i messaggi a schermo (es. "Errore" o "Successo")
 $messaggio = '';
 $tipoMessaggio = '';
 
+// 2. Controlliamo se l'utente ha premuto il pulsante per inviare il form
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
+    // Raccogliamo e ripuliamo i testi inseriti
     $titolo      = trim($_POST['titolo']);
     $descrizione = trim($_POST['descrizione']);
-    $prezzo      = floatval($_POST['prezzo']);
     $stato       = $_POST['stato'];
     $categoria   = $_POST['categoria'];
+    
+    // floatval() assicura che il prezzo venga trattato come un numero con i decimali, non come testo
+    $prezzo      = floatval($_POST['prezzo']); 
 
+    // 3. Controlli di sicurezza (Validazione)
+    // Se manca anche solo un dato obbligatorio...
     if (empty($titolo) || empty($prezzo) || empty($stato) || empty($categoria)) {
-        $messaggio = "Per favore riempi tutti i campi obbligatori";
+        $messaggio = "Per favore, compila tutti i campi obbligatori (quelli con l'asterisco *).";
         $tipoMessaggio = "error";
-    } elseif ($prezzo < 0) {
-        $messaggio = "Il prezzo non può essere negativo";
+    } 
+    // Se l'utente fa il furbo e mette un prezzo negativo...
+    elseif ($prezzo < 0) {
+        $messaggio = "Il prezzo non può essere negativo.";
         $tipoMessaggio = "error";
-    } else {
+    } 
+    else {
+        // 4. GESTIONE DELL'IMMAGINE
+        $nomeImmagine = null; // Di base, partiamo presupponendo che non ci sia immagine
 
-        $nomeImmagine = null;
-
+        // Controlliamo se è stato caricato un file e se non ci sono stati errori di caricamento (UPLOAD_ERR_OK)
         if (isset($_FILES['immagine']) && $_FILES['immagine']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = '../../uploads/articoli/';
+            
+            // Decidiamo in quale cartella del server salvare la foto
+            $cartellaDestinazione = '../../uploads/articoli/';
 
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
+            // Se la cartella non esiste ancora, chiediamo a PHP di crearla
+            if (!is_dir($cartellaDestinazione)) {
+                mkdir($cartellaDestinazione, 0755, true);
             }
 
-            $estensioni = ['jpg', 'jpeg', 'png', 'webp'];
-            $ext = strtolower(pathinfo($_FILES['immagine']['name'], PATHINFO_EXTENSION));
+            // Definiamo quali tipi di immagine accettiamo
+            $estensioniPermesse = ['jpg', 'jpeg', 'png', 'webp'];
+            
+            // Troviamo l'estensione del file caricato e la mettiamo in minuscolo (es. da "Foto.JPG" a "jpg")
+            $estensioneFile = strtolower(pathinfo($_FILES['immagine']['name'], PATHINFO_EXTENSION));
 
-            if (!in_array($ext, $estensioni)) {
-                $messaggio = "Formato immagine non valido. Usa JPG, PNG o WEBP.";
+            // Il file caricato ha l'estensione giusta?
+            if (!in_array($estensioneFile, $estensioniPermesse)) {
+                $messaggio = "Formato immagine non valido. Usa solo file JPG, PNG o WEBP.";
                 $tipoMessaggio = "error";
-            } elseif ($_FILES['immagine']['size'] > 5 * 1024 * 1024) {
-                // CORRETTO: sia il limite che il messaggio dicono 5MB
-                $messaggio = "L'immagine non deve superare 5MB.";
+            } 
+            // Il file è troppo pesante? (Il limite è 5MB: 5 * 1024KB * 1024Byte)
+            elseif ($_FILES['immagine']['size'] > 5 * 1024 * 1024) {
+                $messaggio = "L'immagine è troppo pesante. Il limite massimo è di 5MB.";
                 $tipoMessaggio = "error";
-            } else {
-                $nomeFile = uniqid('art_') . '.' . $ext;
-                $percorsoCompleto = $uploadDir . $nomeFile;
+            } 
+            else {
+                // Se tutto va bene, creiamo un NOME UNICO per il file. 
+                // Serve per evitare che due utenti carichino una foto chiamata "chitarra.jpg" sovrascrivendosi a vicenda!
+                $nomeFileUnico = uniqid('art_') . '.' . $estensioneFile; // Diventa qualcosa tipo: art_65a4f...jpg
+                $percorsoCompleto = $cartellaDestinazione . $nomeFileUnico;
+                
+                // Spostiamo fisicamente l'immagine dalla cartella temporanea del server a quella definitiva
                 if (move_uploaded_file($_FILES['immagine']['tmp_name'], $percorsoCompleto)) {
-                    $nomeImmagine = $nomeFile;
+                    $nomeImmagine = $nomeFileUnico; // Salviamo il nome per metterlo nel database
                 }
             }
         }
 
+        // 5. SALVATAGGIO NEL DATABASE
+        // Se non ci sono stati messaggi di errore fino ad ora (es. per colpa dell'immagine)...
         if ($tipoMessaggio !== 'error') {
             try {
+                // Prepariamo il comando per salvare i dati
+                // Nota: impostiamo "disponibilita = TRUE" di default perché l'articolo è appena stato creato
                 $sql = "INSERT INTO ArticoloInVendita 
                         (fkUtenteId, titolo, descrizione, prezzo, stato, categoria, immagine, disponibilita)
                         VALUES (:userId, :titolo, :descrizione, :prezzo, :stato, :categoria, :immagine, TRUE)";
 
-                $sth = DBHandler::getPDO()->prepare($sql);
-                $sth->execute([
+                $istruzione = DBHandler::getPDO()->prepare($sql);
+                
+                // Inseriamo i dati al posto dei segnaposto
+                $istruzione->execute([
                     ':userId'      => $userId,
                     ':titolo'      => $titolo,
                     ':descrizione' => $descrizione,
@@ -70,12 +99,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     ':immagine'    => $nomeImmagine
                 ]);
 
-                $messaggio = "Articolo aggiunto con successo! Reindirizzamento...";
+                // Successo! 
+                $messaggio = "Articolo pubblicato con successo! Ti sto riportando alla vetrina...";
                 $tipoMessaggio = "success";
+                
+                // "refresh:2" fa aspettare 2 secondi per far leggere il messaggio all'utente prima di cambiare pagina
                 header("refresh:2; url=mainPage.php");
 
             } catch (PDOException $e) {
-                $messaggio = "Errore nell'aggiunta articolo: " . $e->getMessage();
+                // Se c'è un errore del database (es. database disconnesso)
+                $messaggio = "Ops! C'è stato un problema nel salvataggio: " . $e->getMessage();
                 $tipoMessaggio = "error";
             }
         }
@@ -91,6 +124,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <title>Vendi un articolo - Chordly</title>
     <style>
+        /* (Ho mantenuto i tuoi stili interni per il riquadro dell'immagine) */
         .upload-area {
             border: 2px dashed rgba(255,255,255,0.2);
             border-radius: 10px;
@@ -124,18 +158,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <h1>Vendi il tuo articolo</h1>
             <p class="form-subtitle">Completa il form per mettere in vendita il tuo strumento musicale</p>
 
+            <!-- Mostriamo il banner colorato se c'è un messaggio (errore o successo) -->
             <?php if ($messaggio): ?>
                 <div class="alert alert-<?php echo $tipoMessaggio; ?>">
                     <?php echo htmlspecialchars($messaggio); ?>
                 </div>
             <?php endif; ?>
 
+            <!-- 
+              IMPORTANTISSIMO: enctype="multipart/form-data" 
+              Senza questa riga, il form manderà solo i testi e NON invierà il file dell'immagine al server!
+            -->
             <form method="POST" class="form-articolo" enctype="multipart/form-data">
 
                 <div class="form-group">
                     <label for="titolo">Titolo articolo *</label>
-                    <input type="text" id="titolo" name="titolo"
-                           placeholder="es: Fender Stratocaster MIM" required>
+                    <input type="text" id="titolo" name="titolo" placeholder="es: Fender Stratocaster MIM" required>
                 </div>
 
                 <div class="form-row">
@@ -154,8 +192,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     <div class="form-group">
                         <label for="prezzo">Prezzo (€) *</label>
-                        <input type="number" id="prezzo" name="prezzo"
-                               placeholder="0.00" step="0.01" min="0" required>
+                        <input type="number" id="prezzo" name="prezzo" placeholder="0.00" step="0.01" min="0" required>
                     </div>
 
                     <div class="form-group">
@@ -176,6 +213,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                               rows="6"></textarea>
                 </div>
 
+                <!-- ZONA DI CARICAMENTO FOTO -->
                 <div class="form-group">
                     <label>Foto articolo</label>
                     <div class="upload-area" id="uploadArea">
@@ -185,6 +223,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="upload-icon">📷</div>
                         <p>Clicca per caricare una foto (JPG, PNG, WEBP — max 5MB)</p>
                     </div>
+                    <!-- Qui apparirà l'anteprima della foto appena l'utente la seleziona -->
                     <img id="preview-img" src="" alt="Anteprima">
                 </div>
 
@@ -196,18 +235,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </main>
 
+    <!-- Script per mostrare l'anteprima dell'immagine prima dell'invio -->
     <script>
         function previewImage(event) {
+            // Prendiamo il file che l'utente ha appena selezionato
             const file = event.target.files[0];
-            if (!file) return;
+            if (!file) return; // Se ha annullato, ci fermiamo
+            
+            // FileReader è uno strumento di Javascript per leggere i file nel browser
             const reader = new FileReader();
+            
+            // Quando il file finisce di caricare...
             reader.onload = e => {
+                // Prendiamo il tag <img> nascosto
                 const img = document.getElementById('preview-img');
+                // Gli diamo come sorgente (src) il file appena letto
                 img.src = e.target.result;
-                img.style.display = 'block';
+                img.style.display = 'block'; // Lo rendiamo visibile
+                
+                // Nascondiamo l'icona della macchina fotografica e aggiorniamo il testo col nome del file
                 document.querySelector('.upload-area .upload-icon').style.display = 'none';
                 document.querySelector('.upload-area p').textContent = file.name;
             };
+            
+            // Diciamo a FileReader di iniziare a leggere il file come se fosse un URL immagine
             reader.readAsDataURL(file);
         }
     </script>

@@ -1,58 +1,73 @@
 <?php
+// 1. Richiamiamo il file centrale
 require_once('../include/menuchoice.php');
 
+// 2. Controllo di sicurezza: verifichiamo che ci sia un "id" nell'indirizzo web e che sia un numero
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    // Se qualcuno prova a scrivere a mano "articleDetail.php?id=pippo", lo rispediamo alla home!
     header('Location: mainPage.php');
     exit;
 }
 
-$userId = $_SESSION['userId'];
-$idArticolo = (int)$_GET['id'];
+$idUtenteLoggato = $_SESSION['userId'];
+$idArticolo = (int)$_GET['id']; // Trasformiamo l'id in un numero intero per sicurezza
 
 try {
-    // Dati articolo + venditore
+    // 3. Prepariamo la query per prendere tutti i dati dell'articolo E del suo venditore
     $sql = "SELECT a.*, u.nome, u.cognome, u.email, u.idUtente as vendId
             FROM ArticoloInVendita a
             JOIN Utente u ON a.fkUtenteId = u.idUtente
             WHERE a.idArticolo = :id AND a.disponibilita = TRUE";
-    $sth = DBHandler::getPDO()->prepare($sql);
-    $sth->bindParam(':id', $idArticolo, PDO::PARAM_INT);
-    $sth->execute();
-    $articolo = $sth->fetch();
+            
+    $istruzione = DBHandler::getPDO()->prepare($sql);
+    $istruzione->bindParam(':id', $idArticolo, PDO::PARAM_INT);
+    $istruzione->execute();
+    
+    // fetch() prende UN SOLO risultato (l'articolo specifico)
+    $articolo = $istruzione->fetch();
 
+    // Se l'articolo non esiste (o è stato già venduto/eliminato), torniamo alla home
     if (!$articolo) {
         header('Location: mainPage.php');
         exit;
     }
 
-    // Controlla se già segui il venditore
+    // 4. L'utente loggato segue già questo venditore?
+    // Facciamo una query veloce per vedere se esiste un collegamento tra di loro
     $sqlSeguito = "SELECT 1 FROM Segue WHERE idFollower = :me AND idSeguito = :lui";
-    $sthS = DBHandler::getPDO()->prepare($sqlSeguito);
-    $sthS->execute([':me' => $userId, ':lui' => $articolo['vendId']]);
-    $giaSegui = (bool)$sthS->fetch();
+    $istruzioneS = DBHandler::getPDO()->prepare($sqlSeguito);
+    $istruzioneS->execute([':me' => $idUtenteLoggato, ':lui' => $articolo['vendId']]);
+    // Trasformiamo il risultato in un valore Vero/Falso (booleano)
+    $giaSegui = (bool)$istruzioneS->fetch(); 
 
-    // Numero di follower del venditore
+    // 5. Quanti follower ha questo venditore in totale?
     $sqlFollower = "SELECT COUNT(*) as tot FROM Segue WHERE idSeguito = :lui";
-    $sthF = DBHandler::getPDO()->prepare($sqlFollower);
-    $sthF->execute([':lui' => $articolo['vendId']]);
-    $numFollower = $sthF->fetch()['tot'];
+    $istruzioneF = DBHandler::getPDO()->prepare($sqlFollower);
+    $istruzioneF->execute([':lui' => $articolo['vendId']]);
+    $numFollower = $istruzioneF->fetch()['tot'];
 
-    // Altri articoli dello stesso venditore
+    // 6. Prendiamo gli ultimi 4 articoli messi in vendita da questo stesso utente (per consigliarli in fondo alla pagina)
     $sqlAltri = "SELECT idArticolo, titolo, prezzo, immagine
                  FROM ArticoloInVendita
                  WHERE fkUtenteId = :uid AND idArticolo != :aid AND disponibilita = TRUE
                  ORDER BY dataPost DESC LIMIT 4";
-    $sthA = DBHandler::getPDO()->prepare($sqlAltri);
-    $sthA->execute([':uid' => $articolo['vendId'], ':aid' => $idArticolo]);
-    $altriArticoli = $sthA->fetchAll();
+    $istruzioneA = DBHandler::getPDO()->prepare($sqlAltri);
+    // :uid è il venditore, :aid è l'articolo attuale (che escludiamo con != per non mostrare il doppio)
+    $istruzioneA->execute([':uid' => $articolo['vendId'], ':aid' => $idArticolo]);
+    $altriArticoli = $istruzioneA->fetchAll();
 
 } catch (PDOException $e) {
-    die("Errore: " . $e->getMessage());
+    die("Errore di connessione: " . $e->getMessage());
 }
 
-$iniziali = strtoupper(substr($articolo['nome'], 0, 1) . substr($articolo['cognome'], 0, 1));
-$isMio    = ($userId == $articolo['vendId']);
-$imgPath  = $articolo['immagine'] ? '../../uploads/articoli/' . htmlspecialchars($articolo['immagine']) : null;
+// Generiamo le inziali del venditore (es. da Mario Rossi a MR) per l'avatar
+$inizialiVenditore = strtoupper(substr($articolo['nome'], 0, 1) . substr($articolo['cognome'], 0, 1));
+
+// Controlliamo se chi sta guardando la pagina è lo STESSO che ha pubblicato l'annuncio
+$isMioAnnuncio = ($idUtenteLoggato == $articolo['vendId']);
+
+// Prepariamo il percorso dell'immagine (se esiste)
+$imgPath = $articolo['immagine'] ? '../../uploads/articoli/' . htmlspecialchars($articolo['immagine']) : null;
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -72,26 +87,25 @@ $imgPath  = $articolo['immagine'] ? '../../uploads/articoli/' . htmlspecialchars
 
     <main class="detail-container">
 
-        <!--  COLONNA SINISTRA: IMMAGINE -->
+        <!-- COLONNA SINISTRA: IMMAGINE -->
         <div class="image-col">
-            <div class="main-image-wrapper" id="mainImgWrapper"
-                 <?php if($imgPath): ?>onclick="openLightbox()"<?php endif; ?>>
+            <!-- Se c'è un'immagine, permettiamo di cliccarla per ingrandirla (Lightbox) -->
+            <div class="main-image-wrapper" id="mainImgWrapper" <?php if($imgPath): ?>onclick="openLightbox()"<?php endif; ?>>
+                
                 <?php if ($imgPath): ?>
-                    <img src="<?php echo $imgPath; ?>"
-                         alt="<?php echo htmlspecialchars($articolo['titolo']); ?>"
-                         class="main-image" id="mainImg">
+                    <img src="<?php echo $imgPath; ?>" alt="<?php echo htmlspecialchars($articolo['titolo']); ?>" class="main-image" id="mainImg">
                     <div class="zoom-hint">🔍 Clicca per ingrandire</div>
                 <?php else: ?>
                     <div class="placeholder-img">🎸</div>
                 <?php endif; ?>
+                
             </div>
-
             <span class="stato-badge <?php echo $articolo['stato']; ?>">
                 <?php echo ucfirst($articolo['stato']); ?>
             </span>
         </div>
 
-        <!-- COLONNA DESTRA: DETTAGLI  -->
+        <!-- COLONNA DESTRA: DETTAGLI E PULSANTI -->
         <div class="info-col">
             <div class="categoria-label"><?php echo ucfirst($articolo['categoria']); ?></div>
             <h1 class="titolo"><?php echo htmlspecialchars($articolo['titolo']); ?></h1>
@@ -100,14 +114,15 @@ $imgPath  = $articolo['immagine'] ? '../../uploads/articoli/' . htmlspecialchars
             <?php if (!empty($articolo['descrizione'])): ?>
                 <div class="descrizione">
                     <h3>Descrizione</h3>
+                    <!-- nl2br converte gli invii "a capo" fatti dall'utente nel testo in <br> html -->
                     <p><?php echo nl2br(htmlspecialchars($articolo['descrizione'])); ?></p>
                 </div>
             <?php endif; ?>
 
-            <!--  CARD VENDITORE  -->
+            <!-- SCHEDA DEL VENDITORE -->
             <div class="seller-card">
                 <div class="seller-info">
-                    <div class="seller-avatar"><?php echo $iniziali; ?></div>
+                    <div class="seller-avatar"><?php echo $inizialiVenditore; ?></div>
                     <div>
                         <div class="seller-name">
                             <?php echo htmlspecialchars($articolo['nome'] . ' ' . $articolo['cognome']); ?>
@@ -116,21 +131,24 @@ $imgPath  = $articolo['immagine'] ? '../../uploads/articoli/' . htmlspecialchars
                     </div>
                 </div>
 
-                <?php if (!$isMio): ?>
+                <!-- Se NON è il mio annuncio, mostro i tasti Segui e Compra -->
+                <?php if (!$isMioAnnuncio): ?>
                     <div class="seller-actions">
-                        <!-- PULSANTE FOLLOW/UNFOLLOW -->
-                        <button class="btn-follow <?php echo $giaSegui ? 'following' : ''; ?>"
-                                id="followBtn"
-                                onclick="toggleFollow(<?php echo $articolo['vendId']; ?>)">
+                        
+                        <!-- Pulsante per Seguire -->
+                        <button class="btn-follow <?php echo $giaSegui ? 'following' : ''; ?>" id="followBtn" onclick="toggleFollow(<?php echo $articolo['vendId']; ?>)">
                             <?php echo $giaSegui ? 'Stai seguendo' : '+ Segui'; ?>
                         </button>
 
+                        <!-- Pulsante per Acquistare (usa Javascript per chiamare buyArticle.php) -->
                         <?php if ($articolo['disponibilita']): ?>
                         <button class="btn-buy" id="buyBtn" onclick="buyArticle(<?php echo $idArticolo; ?>)">
                             Acquista
                         </button>
                         <?php endif; ?>
+                        
                     </div>
+                <!-- Se è il MIO annuncio, mostro solo un'etichetta -->
                 <?php else: ?>
                     <div class="my-listing-badge">Il tuo annuncio</div>
                 <?php endif; ?>
@@ -142,7 +160,7 @@ $imgPath  = $articolo['immagine'] ? '../../uploads/articoli/' . htmlspecialchars
         </div>
     </main>
 
-    <!--  ALTRI ARTICOLI DEL VENDITORE  -->
+    <!-- SEZIONE IN BASSO: ALTRI ARTICOLI DELLO STESSO VENDITORE -->
     <?php if (!empty($altriArticoli)): ?>
     <section class="altri-section">
         <div class="altri-inner">
@@ -152,8 +170,7 @@ $imgPath  = $articolo['immagine'] ? '../../uploads/articoli/' . htmlspecialchars
                     <a href="articleDetail.php?id=<?php echo $art['idArticolo']; ?>" class="mini-card">
                         <div class="mini-img">
                             <?php if ($art['immagine']): ?>
-                                <img src="../../uploads/articoli/<?php echo htmlspecialchars($art['immagine']); ?>"
-                                     alt="<?php echo htmlspecialchars($art['titolo']); ?>">
+                                <img src="../../uploads/articoli/<?php echo htmlspecialchars($art['immagine']); ?>" alt="<?php echo htmlspecialchars($art['titolo']); ?>">
                             <?php else: ?>
                                 🎸
                             <?php endif; ?>
@@ -169,73 +186,75 @@ $imgPath  = $articolo['immagine'] ? '../../uploads/articoli/' . htmlspecialchars
     </section>
     <?php endif; ?>
 
-    <!--  LIGHTBOX  -->
+    <!-- LIGHTBOX: La finestra nera che appare sopra lo schermo per ingrandire l'immagine -->
     <?php if ($imgPath): ?>
     <div class="lightbox" id="lightbox" onclick="closeLightbox()">
         <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-        <img src="<?php echo $imgPath; ?>"
-             alt="<?php echo htmlspecialchars($articolo['titolo']); ?>"
-             class="lightbox-img"
-             onclick="event.stopPropagation()">
+        <img src="<?php echo $imgPath; ?>" alt="<?php echo htmlspecialchars($articolo['titolo']); ?>" class="lightbox-img" onclick="event.stopPropagation()">
     </div>
     <?php endif; ?>
 
-    
+    <!-- JAVASCRIPT: Logica per i pulsanti -->
     <script>
-        // LIGHTBOX 
+        // --- FUNZIONI LIGHTBOX (Ingrandimento immagine) ---
         function openLightbox() {
             document.getElementById('lightbox').classList.add('active');
-            document.body.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden'; // Blocca lo scorrimento della pagina dietro
         }
         function closeLightbox() {
             document.getElementById('lightbox').classList.remove('active');
-            document.body.style.overflow = '';
+            document.body.style.overflow = ''; // Riattiva lo scorrimento
         }
+        // Chiudi il lightbox anche premendo il tasto Esc sulla tastiera
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') closeLightbox();
         });
 
-        // FOLLOW/UNFOLLOW
-        function toggleFollow(vendId) {
+        // --- FUNZIONE PER SEGUIRE/SMETTERE DI SEGUIRE ---
+        function toggleFollow(idVenditore) {
             const btn = document.getElementById('followBtn');
-            const isFollowing = btn.classList.contains('following');
+            const staGiaSeguendo = btn.classList.contains('following');
 
+            // Mandiamo una richiesta "invisibile" a followUser.php
             fetch('followUser.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'idSeguito=' + vendId + '&action=' + (isFollowing ? 'unfollow' : 'follow')
+                body: 'idSeguito=' + idVenditore + '&action=' + (staGiaSeguendo ? 'unfollow' : 'follow')
             })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
+            .then(risposta => risposta.json())
+            .then(dati => {
+                if (dati.success) {
+                    // Cambiamo colore e testo al pulsante in modo dinamico
                     btn.classList.toggle('following');
-                    btn.textContent = isFollowing ? '+ Segui' : 'Stai seguendo';
+                    btn.textContent = staGiaSeguendo ? '+ Segui' : 'Stai seguendo';
                 }
             })
             .catch(() => alert('Errore di rete'));
         }
 
-        // Funzione per gestire l'acquisto dell'articolo
-        function buyArticle(articleId) {
-            if (!confirm('Sei sicuro di voler acquistare questo articolo? L\'azione è irreversibile.')) {
+        // --- FUNZIONE DI ACQUISTO ---
+        function buyArticle(idDellArticolo) {
+            // Chiediamo conferma all'utente prima di procedere
+            if (!confirm("Sei sicuro di voler acquistare questo articolo? L'azione è irreversibile.")) {
                 return;
             }
 
+            // Mandiamo la richiesta "invisibile" al motore di acquisto (buyArticle.php)
             fetch('buyArticle.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'articleId=' + articleId
+                body: 'articleId=' + idDellArticolo
             })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    window.location.href = 'mainPage.php'; // Reindirizza alla home dopo l'acquisto
+            .then(risposta => risposta.json())
+            .then(dati => {
+                if (dati.success) {
+                    alert(dati.message); // Diciamo "Acquistato con successo!"
+                    window.location.href = 'mainPage.php'; // Lo riportiamo alla vetrina
                 } else {
-                    alert('Errore durante l\'acquisto: ' + data.error);
+                    alert("Errore durante l'acquisto: " + dati.error);
                 }
             })
-            .catch(() => alert('Errore di rete durante l\'acquisto'));
+            .catch(() => alert("Errore di rete durante l'acquisto"));
         }
     </script>
 

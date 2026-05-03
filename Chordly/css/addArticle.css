@@ -1,24 +1,19 @@
-
+/* ===== 1. RESET E BASE ===== */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/*BODY */
 body {
-    font-family: 'DM Sans', sans-serif;
-    /* Sfondo scuro con l'immagine della chitarra */
     background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.85)),
-                url("../images/chitarraImageLoginSignin.jpg");
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
+                url("../images/chitarraImageLoginSignin.jpg") center/cover fixed;
     color: #e5e1d8;
     min-height: 100vh;
 }
 
-/* ===== NAVBAR =====*/
+/* ===== 2. NAVBAR ===== */
 .navbar {
     display: flex;
     align-items: center;
@@ -26,12 +21,9 @@ body {
     padding: 0 35px;
     height: 60px;
     background: rgba(10, 10, 10, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(197, 160, 89, 0.2);
 }
 
-/* Logo */
 .nav-logo {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 26px;
@@ -40,16 +32,15 @@ body {
     text-decoration: none;
 }
 
-/* Bottone per tornare alla home */
 .btn-back {
-    margin-left: auto; /* Manda il bottone a destra */
+    margin-left: auto;
     color: rgba(255,255,255,0.65);
     text-decoration: none;
     font-size: 14px;
     padding: 8px 16px;
     border: 1px solid rgba(255,255,255,0.2);
     border-radius: 20px;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
 .btn-back:hover {
@@ -57,31 +48,20 @@ body {
     border-color: rgba(197, 160, 89, 0.5);
 }
 
-/* ===== CONTENITORE PRINCIPALE =====*/
+/* ===== 3. LAYOUT FORM ===== */
 .add-article-container {
-    /* Padding (spazio interno) */
     padding: 40px 28px;
-    /* Larghezza massima del box nero */
     max-width: 800px;
-    /* Centra il contenuto */
     margin: 0 auto;
 }
 
-/* ===== WRAPPER DEL FORM =====*/
 .form-wrapper {
-    /* Sfondo semi-trasparente */
     background: rgba(15, 15, 15, 0.7);
-    /* Bordo sottile */
     border: 1px solid rgba(255,255,255,0.08);
-    /* Angoli arrotondati */
     border-radius: 16px;
-    /* Spazio interno */
     padding: 40px;
-    /* Effetto di sfocamento (blur) */
-    backdrop-filter: blur(6px);
 }
 
-/* ===== TITOLO H1 =====*/
 h1 {
     font-size: 28px;
     font-weight: 500;
@@ -89,45 +69,38 @@ h1 {
     color: white;
 }
 
-/* ===== SOTTOTITOLO =====*/
 .form-subtitle {
     font-size: 14px;
     color: rgba(255,255,255,0.4);
     margin-bottom: 28px;
 }
 
-/* ===== MESSAGGI DI AVVISO/SUCCESSO =====*/
 .alert {
     padding: 12px 16px;
     border-radius: 8px;
     margin-bottom: 24px;
     font-size: 14px;
-    border-left: 4px solid; /* Linea colorata a sinistra */
+    border-left: 4px solid;
 }
 
-
-/* ===== FORM =====*/
+/* ===== 4. CAMPI E GRIGLIE ===== */
 .form-articolo {
     display: flex;
-    flex-direction: column; /* Metti gli elementi uno sotto l'altro */
-    gap: 24px; /* Spazio tra i campi */
+    flex-direction: column;
+    gap: 24px;
 }
 
-/*  GRUPPO DI FORM */
 .form-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-/* RIGA DEL FORM (per mettere campi affiancati) */
 .form-row {
-    /* Grid: 3 colonne uguali */
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 16px;
 }
-
 
 label {
     font-size: 14px;
@@ -135,87 +108,67 @@ label {
     font-weight: 500;
 }
 
-/* ===== INPUT, SELECT, TEXTAREA =====*/
 input,
 select,
 textarea {
-    /* Spazio interno */
     padding: 11px 16px;
-    /* Angoli arrotondati */
     border-radius: 8px;
-    /* Bordo */
     border: 1px solid rgba(255,255,255,0.15);
-    /* Sfondo semi-trasparente */
     background: rgba(255,255,255,0.08);
-    /* Colore del testo */
     color: white;
-    font-family: 'DM Sans', sans-serif;
     font-size: 14px;
-    outline: none; /* Tolgo il bordo di default del browser */
-    /* Animazione quando cambia lo stato */
-    transition: border-color 0.2s, background 0.2s;
+    outline: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
 }
 
-
-
-/* ===== SELECT (DROPDOWN) =====*/
 select {
-    /* Nascondi il dropdown di default */
     appearance: none;
     -webkit-appearance: none;
-    padding-right: 36px; 
+    padding-right: 36px;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.5)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
     cursor: pointer;
 }
 
-/* Opzioni del dropdown */
 select option {
     background: #1a1a1a;
     color: white;
 }
 
-/* Area descrizione*/
 textarea {
-    /* Permetti di allargare solo verticalmente */
     resize: vertical;
-    /* Altezza minima */
     min-height: 120px;
-    font-family: 'DM Sans', sans-serif;
 }
 
-/*  PULSANTI */
+/* ===== 5. BOTTONI AZIONE ===== */
 .form-actions {
     display: flex;
     gap: 12px;
     margin-top: 20px;
 }
 
-/* Pulsante PUBBLICA */
 .btn-submit {
-    flex: 1; 
+    flex: 1;
     padding: 12px 24px;
     border-radius: 8px;
     border: none;
-    background: #c5a059; /* Colore oro */
+    background: #c5a059;
     color: #111;
     font-weight: 500;
     font-size: 15px;
     cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s ease;
 }
 
 .btn-submit:hover {
-    transform: translateY(-2px); /* Solleva il bottone */
+    transform: translateY(-2px);
 }
 
 .btn-submit:active {
     transform: translateY(0);
 }
 
-/* Pulsante ANNULLA */
 .btn-cancel {
     flex: 1;
     padding: 12px 24px;
@@ -228,7 +181,7 @@ textarea {
     text-decoration: none;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
 .btn-cancel:hover {

@@ -1,11 +1,16 @@
 <?php
+// 1. Richiamiamo il controllore
 require_once('../include/menuchoice.php');
 
-$userId = $_SESSION['userId'];
+$idUtenteLoggato = $_SESSION['userId'];
 
-// Questa query prende tutti gli utenti che hai scelto di seguire
-// e conta quanti articoli hanno in vendita
 try {
+    // 2. UNA QUERY "AVANZATA" MA MOLTO POTENTE
+    // Questa query fa tre cose insieme:
+    // a) Trova chi segui (nella tabella Segue)
+    // b) Prende i loro nomi (nella tabella Utente)
+    // c) Conta quanti articoli hanno in vendita (nella tabella ArticoloInVendita)
+    // Usiamo "LEFT JOIN" per gli articoli perché vogliamo mostrare l'utente ANCHE SE ha 0 articoli in vendita.
     $sql = "SELECT u.idUtente, u.nome, u.cognome, u.email, COUNT(a.idArticolo) as numArticoli
             FROM Segue s
             JOIN Utente u ON s.idSeguito = u.idUtente
@@ -14,13 +19,14 @@ try {
             GROUP BY u.idUtente
             ORDER BY u.nome";
     
-    $sth = DBHandler::getPDO()->prepare($sql);
-    $sth->bindParam(':userId', $userId, PDO::PARAM_INT);
-    $sth->execute();
-    // fetchAll() prende tutti i risultati
-    $seguiti = $sth->fetchAll();
+    $istruzione = DBHandler::getPDO()->prepare($sql);
+    $istruzione->execute([':userId' => $idUtenteLoggato]);
+    
+    // fetchAll() estrae tutti gli utenti trovati
+    $utentiSeguiti = $istruzione->fetchAll();
+    
 } catch (PDOException $e) {
-    die("Errore: " . $e->getMessage());
+    die("Errore nel recupero dei seguiti: " . $e->getMessage());
 }
 ?>
 <!DOCTYPE html>
@@ -34,79 +40,72 @@ try {
 </head>
 <body>
 
-    <!-- Barra di navigazione-->
     <nav class="navbar">
         <a class="nav-logo" href="mainPage.php">CHORDLY</a>
         <a href="mainPage.php" class="btn-back">← Torna alla home</a>
     </nav>
 
-    <!-- CONTENUTO PRINCIPALE -->
     <main class="container">
         <h1>Profili che stai seguendo</h1>
         
-        <!--  LISTA DI SEGUITI-->
         <div class="seguiti-list">
             
-            <!--  SE NON STAI SEGUENDO NESSUNO -->
-            <?php if (empty($seguiti)): ?>
+            <!-- SE NON STAI SEGUENDO NESSUNO -->
+            <?php if (empty($utentiSeguiti)): ?>
                 <div class="empty-state">
-                    <p>Non stai ancora seguendo nessuno</p>
+                    <p>Non stai ancora seguendo nessuno.</p>
                     <a href="mainPage.php" class="btn-primary">Scopri altri utenti</a>
                 </div>
             
             <!-- SE STAI SEGUENDO QUALCUNO -->
             <?php else: ?>
-                <!-- Per ogni utente che stai seguendo, mostra una card -->
-                <?php foreach ($seguiti as $utente): ?>
+                <!-- Creiamo un riquadro per ogni utente seguito -->
+                <?php foreach ($utentiSeguiti as $utente): ?>
                     <div class="seguiti-card">
-                        <!-- PARTE SINISTRA: INFORMAZIONI UTENTE -->
+                        
+                        <!-- PARTE SINISTRA: INFO UTENTE -->
                         <div class="user-info">
-                            <!-- Avatar con le iniziali del nome e cognome -->
                             <div class="user-avatar">
                                 <?php echo strtoupper(substr($utente['nome'], 0, 1) . substr($utente['cognome'], 0, 1)); ?>
                             </div>
-                            <!-- Nome, cognome e numero articoli -->
                             <div class="user-details">
                                 <h3><?php echo htmlspecialchars($utente['nome'] . ' ' . $utente['cognome']); ?></h3>
+                                <!-- Mostriamo il conteggio calcolato dalla Query in alto -->
                                 <p><?php echo $utente['numArticoli']; ?> articoli in vendita</p>
                             </div>
                         </div>
                         
-                        <!-- PARTE DESTRA: PULSANTI -->
+                        <!-- PARTE DESTRA: BOTTONI -->
                         <div class="user-actions">
-                            <!-- Pulsante per smettere di seguire -->
                             <button class="btn-unfollow" onclick="unfollowUser(<?php echo $utente['idUtente']; ?>)">
                                 Smetti di seguire
                             </button>
-                            <!-- Pulsante per vedere il profilo pubblico dell'utente -->
                             <a href="publicProfile.php?id=<?php echo $utente['idUtente']; ?>" class="btn-view">Vedi profilo</a>
                         </div>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
+            
         </div>
     </main>
 
-
-
-
-
-    <!--  JAVASCRIPT DA PROVARE-->
+    <!-- JS PER SMETTERE DI SEGUIRE -->
     <script>
-        // Questa funzione si attiva quando clicchi il pulsante "Smetti di seguire"
-        function unfollowUser(userId) {
-            if (confirm('Smettere di seguire questo utente?')) {
+        function unfollowUser(idDaSmettereDiSeguire) {
+            if (confirm('Sei sicuro di voler smettere di seguire questo utente?')) {
+                // Inviamo la richiesta al file followUser.php
                 fetch('followUser.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'idSeguito=' + userId + '&action=unfollow'
+                    body: 'idSeguito=' + idDaSmettereDiSeguire + '&action=unfollow'
                 })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
+                .then(risposta => risposta.json())
+                .then(dati => {
+                    if (dati.success) {
+                        // Se ha avuto successo, ricarichiamo la pagina per aggiornare la lista visiva!
                         location.reload();
                     } else {
-                        alert('Errore: ' + data.error);
+                        alert('Errore: ' + dati.error);
                     }
                 })
                 .catch(() => alert('Errore di rete'));

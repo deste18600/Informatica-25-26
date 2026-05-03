@@ -1,5 +1,5 @@
 {
-    "loggedInPages": [
+    "richiedeLogin": [
         "mainPage.php",
         "addArticle.php",
         "deleteArticle.php",
@@ -11,7 +11,7 @@
         "buyArticle.php",
         "addReview.php"
     ],
-    "DBPages": [
+    "richiedeDatabase": [
         "mainPage.php",
         "articleDetail.php",
         "addArticle.php",
@@ -24,18 +24,5 @@
         "publicProfile.php",
         "buyArticle.php",
         "addReview.php"
-    ],
-    "userpages": [
-        "mainPage.php",
-        "articleDetail.php",
-        "addArticle.php",
-        "deleteArticle.php",
-        "followUser.php",
-        "profilePage.php",
-        "followingPage.php",
-        "publicProfile.php",
-        "buyArticle.php",
-        "addReview.php"
-    ],
-    "adminpages": []
+    ]
 }

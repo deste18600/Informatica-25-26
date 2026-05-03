@@ -1,3 +1,4 @@
+/* ===== 1. RESET BASE ===== */
 * {
     margin: 0;
     padding: 0;
@@ -5,20 +6,20 @@
     font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* ===== 2. LAYOUT PRINCIPALE ===== */
 body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;   
     align-items: center;       
+    /* Sfondo scuro con immagine */
     background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
-                url("../images/welcomePageWallpaper.jpg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+                url("../images/welcomePageWallpaper.jpg") center/cover no-repeat;
     color: white;
 }
 
+/* ===== 3. TESTI E BOTTONI ===== */
 h2 {
     font-size: 32px;
     font-weight: 700;
@@ -46,7 +47,6 @@ h2 {
     cursor: pointer;
     transition: all 0.3s ease;
     text-transform: uppercase;
-    text-align: center;
 }
 
 .btn:hover {

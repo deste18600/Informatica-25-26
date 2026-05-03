@@ -1,26 +1,34 @@
 <?php
+// Richiamiamo il controllore
 require_once('../include/menuchoice.php');
 
-$userId = $_SESSION['userId'];
+$idUtenteLoggato = $_SESSION['userId'];
 
-// VALIDAZIONE: controlla che l'ID esista e sia un numero
+// VALIDAZIONE: controlliamo che ci sia un ID e che sia un numero valido
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header('Location: profilePage.php');
     exit;
 }
 
-$articleId = (int)$_GET['id'];
+$idArticoloDaEliminare = (int)$_GET['id'];
 
 try {
-    // Elimina l'articolo solo se appartiene all'utente loggato
-    $sql = "DELETE FROM ArticoloInVendita WHERE idArticolo = :articleId AND fkUtenteId = :userId";
-    $sth = DBHandler::getPDO()->prepare($sql);
-    $sth->bindParam(':articleId', $articleId, PDO::PARAM_INT);
-    $sth->bindParam(':userId', $userId, PDO::PARAM_INT);
-    $sth->execute();
+    // SICUREZZA FONDAMENTALE:
+    // Eliminiamo l'articolo SOLAMENTE se il suo idArticolo corrisponde E se l'fkUtenteId è uguale al nostro!
+    // In questo modo, se un hacker prova a indovinare l'ID di un articolo di un'altra persona, 
+    // il database si rifiuterà di cancellarlo perché non è di sua proprietà.
+    $sql = "DELETE FROM ArticoloInVendita WHERE idArticolo = :idArticolo AND fkUtenteId = :idUtente";
+    
+    $istruzione = DBHandler::getPDO()->prepare($sql);
+    $istruzione->execute([
+        ':idArticolo' => $idArticoloDaEliminare,
+        ':idUtente'   => $idUtenteLoggato
+    ]);
 
+    // Riportiamo l'utente al suo profilo con un segnale di successo
     header('Location: profilePage.php?status=success');
     exit;
 } catch (PDOException $e) {
-    die("Errore: " . $e->getMessage());
+    die("Errore durante l'eliminazione: " . $e->getMessage());
 }
+?>

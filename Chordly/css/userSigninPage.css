@@ -1,3 +1,4 @@
+/* ===== 1. RESET BASE ===== */
 * {
     margin: 0;
     padding: 0;
@@ -5,31 +6,27 @@
     font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* ===== 2. LAYOUT PRINCIPALE ===== */
 body {
     min-height: 100vh;
     display: flex;
     justify-content: center; 
     align-items: center; 
     background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), 
-                url("../images/chitarraImageLoginSignin.jpg"); 
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
+                url("../images/chitarraImageLoginSignin.jpg") center/cover fixed; 
     padding: 20px;
 }
 
+/* ===== 3. CONTENITORE FORM REGISTRAZIONE ===== */
 .signin-container {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px); 
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-    
     width: 100%;
-    max-width: 700px; /* Rettangolo sfumato più largo */
+    max-width: 700px;
     padding: 40px; 
-    
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -38,7 +35,7 @@ body {
 
 #userSigninForm {
     width: 100%;
-    max-width: 400px; /* Contenuto del form resta compatto */
+    max-width: 400px;
 }
 
 h2 {
@@ -50,6 +47,7 @@ h2 {
     text-transform: uppercase;
 }
 
+/* ===== 4. GRIGLIA INPUT E BOTTONI ===== */
 .input-row {
     display: flex;
     gap: 15px;
