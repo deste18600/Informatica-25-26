@@ -11,7 +11,7 @@ try {
     $sthUser->execute();
     $user = $sthUser->fetch();
 
-    // Conteggio articoli
+    // Conteggio articoli in vendita
     $sqlArticoliCount = "SELECT COUNT(*) as totale FROM ArticoloInVendita WHERE fkUtenteId = :userId";
     $sthArticoliCount = DBHandler::getPDO()->prepare($sqlArticoliCount);
     $sthArticoliCount->bindParam(':userId', $userId, PDO::PARAM_INT);
@@ -25,7 +25,7 @@ try {
     $sthSeguaci->execute();
     $followers = $sthSeguaci->fetch();
 
-    // Lista articoli personali
+    // Lista articoli personali in vendita
     $sqlMieiArticoli = "SELECT idArticolo, titolo, prezzo, categoria, stato 
                         FROM ArticoloInVendita 
                         WHERE fkUtenteId = :userId ORDER BY dataPost DESC";
@@ -33,6 +33,20 @@ try {
     $sthMieiArticoli->bindParam(':userId', $userId, PDO::PARAM_INT);
     $sthMieiArticoli->execute();
     $mieiArticoli = $sthMieiArticoli->fetchAll();
+
+    // Articoli acquistati
+    $sqlAcquisti = "SELECT a.idArticolo, a.titolo, a.prezzo, a.categoria, a.immagine,
+                           u.nome as venditore_nome, u.cognome as venditore_cognome,
+                           ac.dataAcquisto
+                    FROM Acquisti ac
+                    JOIN ArticoloInVendita a ON ac.fkArticoloId = a.idArticolo
+                    JOIN Utente u ON a.fkUtenteId = u.idUtente
+                    WHERE ac.fkAcquirenteId = :userId
+                    ORDER BY ac.dataAcquisto DESC";
+    $sthAcquisti = DBHandler::getPDO()->prepare($sqlAcquisti);
+    $sthAcquisti->bindParam(':userId', $userId, PDO::PARAM_INT);
+    $sthAcquisti->execute();
+    $acquisti = $sthAcquisti->fetchAll();
 
 } catch (PDOException $e) {
     die("Errore nel recupero dati: " . $e->getMessage());
@@ -46,19 +60,6 @@ try {
     <link rel="stylesheet" href="../../css/profilePage.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <title>Profilo - Chordly</title>
-    <style>
-        .review-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 10px;
-        }
-        .review-rating { color: #c5a059; margin-bottom: 5px; }
-        .review-author { font-size: 14px; font-weight: 500; color: #fff; }
-        .review-text { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 5px; }
-        .average-info { color: #c5a059; margin-bottom: 20px; font-weight: 500; }
-    </style>
 </head>
 <body>
 
@@ -69,7 +70,7 @@ try {
 
     <main class="container">
 
-        <!--  CARD PROFILO  -->
+        <!-- CARD PROFILO -->
         <div class="profile-card">
             <div class="profile-header">
                 <div class="profile-avatar">
@@ -92,6 +93,10 @@ try {
                     <div class="stat-number"><?php echo $followers['totale']; ?></div>
                     <p class="stat-label">Follower</p>
                 </div>
+                <div class="stat">
+                    <div class="stat-number"><?php echo count($acquisti); ?></div>
+                    <p class="stat-label">Acquisti effettuati</p>
+                </div>
             </div>
 
             <div class="profile-actions">
@@ -103,7 +108,7 @@ try {
             </p>
         </div>
 
-        <!-- I TUOI ANNUNCI  -->
+        <!-- I TUOI ANNUNCI -->
         <div class="section-block">
             <h2 class="section-title">I tuoi annunci</h2>
 
@@ -125,6 +130,35 @@ try {
                            onclick="return confirm('Sei sicuro di voler eliminare questo annuncio?')"
                            class="btn-delete">
                             Elimina
+                        </a>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+
+        <!-- ARTICOLI ACQUISTATI -->
+        <div class="section-block">
+            <h2 class="section-title">Acquisti effettuati</h2>
+
+            <?php if (empty($acquisti)): ?>
+                <div class="empty-box">Non hai ancora acquistato nessun articolo.</div>
+            <?php else: ?>
+                <?php foreach ($acquisti as $acq): ?>
+                    <div class="article-item">
+                        <div class="article-item-info">
+                            <strong><?php echo htmlspecialchars($acq['titolo']); ?></strong>
+                            <span class="article-item-price">
+                                € <?php echo number_format($acq['prezzo'], 2, ',', '.'); ?>
+                            </span>
+                            <span class="article-item-cat">
+                                <?php echo htmlspecialchars($acq['categoria']); ?>
+                                · Venduto da <?php echo htmlspecialchars($acq['venditore_nome'] . ' ' . $acq['venditore_cognome']); ?>
+                            </span>
+                            <span class="article-item-cat">
+                                Acquistato il <?php echo date('d/m/Y', strtotime($acq['dataAcquisto'])); ?>
+                            </span>
+                        </div>
+                    
                         </a>
                     </div>
                 <?php endforeach; ?>

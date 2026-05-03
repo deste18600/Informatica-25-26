@@ -2,7 +2,14 @@
 require_once('../include/menuchoice.php');
 
 $userId = $_SESSION['userId'];
-$articleId = $_GET['id'];
+
+// VALIDAZIONE: controlla che l'ID esista e sia un numero
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    header('Location: profilePage.php');
+    exit;
+}
+
+$articleId = (int)$_GET['id'];
 
 try {
     // Elimina l'articolo solo se appartiene all'utente loggato

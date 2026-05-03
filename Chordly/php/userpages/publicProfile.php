@@ -1,23 +1,22 @@
 <?php
 require_once('../include/menuchoice.php');
 
-// Assicurati che l'ID dell'utente da visualizzare sia passato tramite GET
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header('Location: mainPage.php'); // Reindirizza se l'ID non è valido
+    header('Location: mainPage.php');
     exit;
 }
 
-$profileUserId = (int)$_GET['id']; // L'ID dell'utente il cui profilo stiamo visualizzando
-$loggedInUserId = $_SESSION['userId'] ?? null; // L'ID dell'utente loggato (potrebbe essere null se non loggato)
+$profileUserId  = (int)$_GET['id'];
+$loggedInUserId = $_SESSION['userId'] ?? null;
 
-// Se l'utente loggato sta visualizzando il proprio profilo, reindirizza a profilePage.php
+// Se l'utente loggato guarda se stesso, manda al profilo privato
 if ($loggedInUserId && $profileUserId === $loggedInUserId) {
     header('Location: profilePage.php');
     exit;
 }
 
 try {
-    // Informazioni dell'utente del profilo
+    // Dati utente del profilo
     $sqlUser = "SELECT idUtente, nome, cognome, email, dataRegistrazione FROM Utente WHERE idUtente = :profileUserId";
     $sthUser = DBHandler::getPDO()->prepare($sqlUser);
     $sthUser->bindParam(':profileUserId', $profileUserId, PDO::PARAM_INT);
@@ -25,7 +24,6 @@ try {
     $user = $sthUser->fetch();
 
     if (!$user) {
-        // Utente non trovato, reindirizza o mostra un errore
         header('Location: mainPage.php');
         exit;
     }
@@ -37,14 +35,14 @@ try {
     $sthArticoliCount->execute();
     $stats = $sthArticoliCount->fetch();
 
-    // Follower del profilo
+    // Follower
     $sqlFollower = "SELECT COUNT(*) as totale FROM Segue WHERE idSeguito = :profileUserId";
     $sthFollower = DBHandler::getPDO()->prepare($sqlFollower);
     $sthFollower->bindParam(':profileUserId', $profileUserId, PDO::PARAM_INT);
     $sthFollower->execute();
     $followers = $sthFollower->fetch();
 
-    // Articoli in vendita dell'utente del profilo
+    // Articoli in vendita
     $sqlArticoli = "SELECT idArticolo, titolo, prezzo, categoria, stato, immagine
                     FROM ArticoloInVendita
                     WHERE fkUtenteId = :profileUserId AND disponibilita = TRUE
@@ -57,10 +55,35 @@ try {
     // Controlla se l'utente loggato segue già questo profilo
     $giaSegui = false;
     if ($loggedInUserId) {
-        $sqlCheckFollow = "SELECT 1 FROM Segue WHERE idFollower = :loggedInUserId AND idSeguito = :profileUserId";
+        $sqlCheckFollow = "SELECT 1 FROM Segue WHERE idFollower = :me AND idSeguito = :lui";
         $sthCheckFollow = DBHandler::getPDO()->prepare($sqlCheckFollow);
-        $sthCheckFollow->execute([':loggedInUserId' => $loggedInUserId, ':profileUserId' => $profileUserId]);
+        $sthCheckFollow->execute([':me' => $loggedInUserId, ':lui' => $profileUserId]);
         $giaSegui = (bool)$sthCheckFollow->fetch();
+    }
+
+    // Controlla se l'utente loggato ha già recensito questo profilo
+    $giaRecensito = false;
+    if ($loggedInUserId) {
+        $sqlGiaR = "SELECT 1 FROM RecensioneUtente WHERE fkRecensoreId = :me AND fkRecensitoId = :lui";
+        $sthGiaR = DBHandler::getPDO()->prepare($sqlGiaR);
+        $sthGiaR->execute([':me' => $loggedInUserId, ':lui' => $profileUserId]);
+        $giaRecensito = (bool)$sthGiaR->fetch();
+    }
+
+    // Recensioni ricevute
+    $sqlRecensioni = "SELECT r.valutazione, r.commento, r.dataRecensione, u.nome, u.cognome
+                      FROM RecensioneUtente r
+                      JOIN Utente u ON r.fkRecensoreId = u.idUtente
+                      WHERE r.fkRecensitoId = :profileUserId
+                      ORDER BY r.dataRecensione DESC";
+    $sthRecensioni = DBHandler::getPDO()->prepare($sqlRecensioni);
+    $sthRecensioni->execute([':profileUserId' => $profileUserId]);
+    $recensioni = $sthRecensioni->fetchAll();
+
+    // Media valutazioni
+    $mediaVoto = 0;
+    if (!empty($recensioni)) {
+        $mediaVoto = round(array_sum(array_column($recensioni, 'valutazione')) / count($recensioni), 1);
     }
 
 } catch (PDOException $e) {
@@ -74,118 +97,13 @@ $iniziali = strtoupper(substr($user['nome'], 0, 1) . substr($user['cognome'], 0,
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../../css/profilePage.css"> <!-- Riutilizziamo il CSS del profilo -->
+    <!-- mainPage.css fornisce già le classi product-card, stato-badge ecc. -->
+    <link rel="stylesheet" href="../../css/mainPage.css">
+    <link rel="stylesheet" href="../../css/profilePage.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <title>Profilo di <?php echo htmlspecialchars($user['nome'] . ' ' . $user['cognome']); ?> - Chordly</title>
     <style>
-        /* Stili specifici per publicProfile.php o override */
-        .review-form {
-            background: rgba(15, 15, 15, 0.7);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .review-form h3 {
-            font-size: 18px;
-            color: white;
-            margin-bottom: 10px;
-        }
-        .review-form textarea {
-            width: 100%;
-            min-height: 80px;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.15);
-            background: rgba(255,255,255,0.08);
-            color: white;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            resize: vertical;
-        }
-        .rating-stars {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 10px;
-            flex-direction: row-reverse; /* Per avere le stelle da destra a sinistra */
-            justify-content: flex-end;
-        }
-        .rating-stars input[type="radio"] {
-            display: none;
-        }
-        .rating-stars label {
-            cursor: pointer;
-            font-size: 24px;
-            color: rgba(255,255,255,0.3);
-            transition: color 0.2s;
-        }
-        .rating-stars label:hover,
-        .rating-stars label:hover ~ label,
-        .rating-stars input[type="radio"]:checked ~ label {
-            color: #c5a059;
-        }
-        .review-form button {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            background: #c5a059;
-            color: #111;
-            font-weight: 500;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .review-form button:hover {
-            transform: translateY(-2px);
-        }
-
-        .reviews-list {
-            margin-top: 30px;
-        }
-        .review-item {
-            background: rgba(15, 15, 15, 0.7);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 12px;
-        }
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .reviewer-info strong {
-            color: white;
-            font-weight: 500;
-        }
-        .review-date {
-            font-size: 12px;
-            color: rgba(255,255,255,0.4);
-        }
-        .review-rating {
-            color: #c5a059;
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-        .review-comment {
-            font-size: 14px;
-            color: rgba(255,255,255,0.7);
-            line-height: 1.6;
-        }
-        .average-rating {
-            font-size: 20px;
-            color: #c5a059;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-        .average-rating span {
-            font-size: 14px;
-            color: rgba(255,255,255,0.5);
-        }
+        /* ---- Stili specifici solo di questa pagina ---- */
         .profile-actions {
             display: flex;
             gap: 12px;
@@ -204,88 +122,91 @@ $iniziali = strtoupper(substr($user['nome'], 0, 1) . substr($user['cognome'], 0,
             background: rgba(197,160,89,0.15);
             border-color: #c5a059;
         }
-        .btn-message {
-            flex: 1; padding: 10px 20px;
-            border-radius: 8px;
-            background: #c5a059; color: #111;
-            font-size: 14px; font-weight: 500;
-            text-decoration: none; text-align: center;
-            transition: background 0.2s;
-        }
-        .btn-message:hover { background: #d4b06a; }
-        /* Stili per la griglia degli articoli, ripresi da mainPage.css */
+
+        /* Griglia articoli (override dimensioni per questo contesto) */
         .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 16px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            margin-top: 16px;
         }
-        .product-card {
-            background: #1a1a1a;
-            border: 1px solid #333;
+
+        /* Form recensione */
+        .review-form {
+            background: rgba(15,15,15,0.7);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-        }
-        .product-card:hover {
-            border-color: #c5a059;
-        }
-        .card-image-wrapper {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 3/4;
-            background: #111;
-            overflow: hidden;
-        }
-        .card-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .placeholder-img {
-            background: #111;
+            padding: 20px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-            color: rgba(255,255,255,0.3);
+            flex-direction: column;
+            gap: 14px;
         }
-        .stato-badge {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            font-size: 10px;
-            font-weight: 500;
-            padding: 3px 9px;
-            border-radius: 10px;
-            text-transform: uppercase;
-            border: 1px solid #333;
-            color: #888;
+        .rating-stars {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 4px;
         }
-        .stato-badge.ottimo { color: #c5a059; border-color: #c5a059; }
-        .stato-badge.difettato { color: #cc6666; border-color: #cc6666; }
-        .card-body {
-            padding: 10px 12px 12px;
+        .rating-stars input[type="radio"] { display: none; }
+        .rating-stars label {
+            font-size: 28px;
+            color: rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: color 0.15s;
         }
-        .card-price {
+        .rating-stars label:hover,
+        .rating-stars label:hover ~ label,
+        .rating-stars input[type="radio"]:checked ~ label {
             color: #c5a059;
+        }
+        .review-form textarea {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.08);
+            color: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+        }
+        .review-form button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            background: #c5a059;
+            color: #111;
             font-weight: 500;
-            font-size: 16px;
-            margin-bottom: 4px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+            align-self: flex-start;
         }
-        .card-title {
-            color: #e5e1d8;
-            font-size: 13px;
-            line-height: 1.3;
-            margin-bottom: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .review-form button:hover { background: #d4b06a; }
+
+        /* Singola recensione */
+        .review-item {
+            background: rgba(15,15,15,0.7);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
         }
-        .card-category {
-            color: #888;
-            font-size: 11px;
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 8px;
+        }
+        .review-header strong { color: white; font-weight: 500; font-size: 14px; }
+        .review-date { font-size: 12px; color: rgba(255,255,255,0.4); }
+        .review-stars { color: #c5a059; font-size: 16px; margin-bottom: 6px; }
+        .review-comment { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.6; }
+        .media-voto { color: #c5a059; font-size: 16px; font-weight: 500; margin-bottom: 16px; }
+        .alert-success {
+            padding: 10px 14px; border-radius: 8px;
+            background: rgba(80,200,100,0.1);
+            border: 1px solid rgba(80,200,100,0.3);
+            color: #5cc877; font-size: 14px; margin-bottom: 16px;
         }
     </style>
 </head>
@@ -298,12 +219,10 @@ $iniziali = strtoupper(substr($user['nome'], 0, 1) . substr($user['cognome'], 0,
 
     <main class="container">
 
-        <!--  CARD PROFILO  -->
+        <!-- CARD PROFILO -->
         <div class="profile-card">
             <div class="profile-header">
-                <div class="profile-avatar">
-                    <?php echo $iniziali; ?>
-                </div>
+                <div class="profile-avatar"><?php echo $iniziali; ?></div>
                 <h1 class="profile-name">
                     <?php echo htmlspecialchars($user['nome'] . ' ' . $user['cognome']); ?>
                 </h1>
@@ -321,11 +240,16 @@ $iniziali = strtoupper(substr($user['nome'], 0, 1) . substr($user['cognome'], 0,
                     <div class="stat-number"><?php echo $followers['totale']; ?></div>
                     <p class="stat-label">Follower</p>
                 </div>
+                <?php if (!empty($recensioni)): ?>
+                <div class="stat">
+                    <div class="stat-number"><?php echo $mediaVoto; ?>★</div>
+                    <p class="stat-label">Valutazione media</p>
+                </div>
+                <?php endif; ?>
             </div>
 
-            <?php if ($loggedInUserId): // Mostra azioni solo se l'utente è loggato ?>
+            <?php if ($loggedInUserId): ?>
             <div class="profile-actions">
-                <!-- PULSANTE FOLLOW/UNFOLLOW -->
                 <button class="btn-follow <?php echo $giaSegui ? 'following' : ''; ?>"
                         id="followBtn"
                         onclick="toggleFollow(<?php echo $profileUserId; ?>)">
@@ -339,6 +263,67 @@ $iniziali = strtoupper(substr($user['nome'], 0, 1) . substr($user['cognome'], 0,
             </p>
         </div>
 
+        <!-- LASCIA UNA RECENSIONE -->
+        <?php if ($loggedInUserId): ?>
+        <div class="section-block">
+            <h2 class="section-title">Lascia una recensione</h2>
+
+            <?php if (isset($_GET['review_success'])): ?>
+                <div class="alert-success">✓ Recensione inviata con successo!</div>
+            <?php endif; ?>
+
+            <?php if ($giaRecensito): ?>
+                <div class="empty-box">Hai già lasciato una recensione per questo utente.</div>
+            <?php else: ?>
+                <form action="addReview.php" method="POST" class="review-form">
+                    <input type="hidden" name="fkRecensitoId" value="<?php echo $profileUserId; ?>">
+
+                    <div>
+                        <p style="font-size:14px; color:rgba(255,255,255,0.6); margin-bottom:8px;">Valutazione *</p>
+                        <div class="rating-stars">
+                            <input type="radio" name="valutazione" id="s5" value="5" required>
+                            <label for="s5">★</label>
+                            <input type="radio" name="valutazione" id="s4" value="4">
+                            <label for="s4">★</label>
+                            <input type="radio" name="valutazione" id="s3" value="3">
+                            <label for="s3">★</label>
+                            <input type="radio" name="valutazione" id="s2" value="2">
+                            <label for="s2">★</label>
+                            <input type="radio" name="valutazione" id="s1" value="1">
+                            <label for="s1">★</label>
+                        </div>
+                    </div>
+
+                    <textarea name="commento" placeholder="Scrivi la tua recensione (opzionale)..."></textarea>
+                    <button type="submit">Invia recensione</button>
+                </form>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+        <!-- RECENSIONI RICEVUTE -->
+        <?php if (!empty($recensioni)): ?>
+        <div class="section-block">
+            <h2 class="section-title">Recensioni ricevute</h2>
+            <p class="media-voto">Media: <?php echo $mediaVoto; ?>/5 — <?php echo count($recensioni); ?> recension<?php echo count($recensioni) === 1 ? 'e' : 'i'; ?></p>
+
+            <?php foreach ($recensioni as $rec): ?>
+                <div class="review-item">
+                    <div class="review-header">
+                        <strong><?php echo htmlspecialchars($rec['nome'] . ' ' . $rec['cognome']); ?></strong>
+                        <span class="review-date"><?php echo date('d/m/Y', strtotime($rec['dataRecensione'])); ?></span>
+                    </div>
+                    <div class="review-stars">
+                        <?php echo str_repeat('★', $rec['valutazione']) . str_repeat('☆', 5 - $rec['valutazione']); ?>
+                    </div>
+                    <?php if (!empty($rec['commento'])): ?>
+                        <div class="review-comment"><?php echo htmlspecialchars($rec['commento']); ?></div>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
         <!-- ARTICOLI IN VENDITA -->
         <div class="section-block">
             <h2 class="section-title">Articoli in vendita di <?php echo htmlspecialchars($user['nome']); ?></h2>
@@ -347,7 +332,8 @@ $iniziali = strtoupper(substr($user['nome'], 0, 1) . substr($user['cognome'], 0,
             <?php else: ?>
                 <div class="product-grid">
                     <?php foreach ($articoliInVendita as $articolo): ?>
-                        <div class="product-card" onclick="location.href='articleDetail.php?id=<?php echo $articolo['idArticolo']; ?>'">
+                        <div class="product-card"
+                             onclick="location.href='articleDetail.php?id=<?php echo $articolo['idArticolo']; ?>'">
                             <div class="card-image-wrapper">
                                 <?php if ($articolo['immagine']): ?>
                                     <img src="../../uploads/articoli/<?php echo htmlspecialchars($articolo['immagine']); ?>"
@@ -370,10 +356,10 @@ $iniziali = strtoupper(substr($user['nome'], 0, 1) . substr($user['cognome'], 0,
                 </div>
             <?php endif; ?>
         </div>
+
     </main>
 
     <script>
-        // Funzione per gestire il follow/unfollow (copiata da articleDetail.php)
         function toggleFollow(vendId) {
             const btn = document.getElementById('followBtn');
             const isFollowing = btn.classList.contains('following');
@@ -388,13 +374,13 @@ $iniziali = strtoupper(substr($user['nome'], 0, 1) . substr($user['cognome'], 0,
                 if (data.success) {
                     btn.classList.toggle('following');
                     btn.textContent = isFollowing ? '+ Segui' : 'Stai seguendo';
-                    // Aggiorna il numero di follower dinamicamente (opzionale, per semplicità non lo faccio ora)
                 } else {
                     alert('Errore: ' + data.error);
                 }
             })
-            .catch(() => alert('Errore di rete durante il follow/unfollow'));
+            .catch(() => alert('Errore di rete'));
         }
     </script>
+
 </body>
 </html>

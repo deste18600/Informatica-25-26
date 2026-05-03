@@ -9,10 +9,7 @@
         "articleDetail.php",
         "publicProfile.php",
         "buyArticle.php",
-        "userLoginpage.php",
-        "userSigninPage.php",
-        "login.php",
-        "signIn.php"
+        "addReview.php"
     ],
     "DBPages": [
         "mainPage.php",
@@ -25,7 +22,8 @@
         "login.php",
         "signIn.php",
         "publicProfile.php",
-        "buyArticle.php"
+        "buyArticle.php",
+        "addReview.php"
     ],
     "userpages": [
         "mainPage.php",
@@ -36,7 +34,8 @@
         "profilePage.php",
         "followingPage.php",
         "publicProfile.php",
-        "buyArticle.php"
+        "buyArticle.php",
+        "addReview.php"
     ],
     "adminpages": []
 }

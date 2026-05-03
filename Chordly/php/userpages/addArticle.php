@@ -1,7 +1,6 @@
 <?php
 require_once('../include/menuchoice.php');
 
-
 if (!isset($_SESSION['userId'])) {
     header('Location: userLoginpage.php');
     exit;
@@ -12,11 +11,11 @@ $messaggio = '';
 $tipoMessaggio = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $titolo = trim($_POST['titolo']);
+    $titolo      = trim($_POST['titolo']);
     $descrizione = trim($_POST['descrizione']);
-    $prezzo = floatval($_POST['prezzo']);
-    $stato = $_POST['stato'];
-    $categoria = $_POST['categoria'];
+    $prezzo      = floatval($_POST['prezzo']);
+    $stato       = $_POST['stato'];
+    $categoria   = $_POST['categoria'];
 
     if (empty($titolo) || empty($prezzo) || empty($stato) || empty($categoria)) {
         $messaggio = "Per favore riempi tutti i campi obbligatori";
@@ -26,14 +25,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $tipoMessaggio = "error";
     } else {
 
-
-        //GESTIONE UPLOAD IMMAGINE
         $nomeImmagine = null;
 
         if (isset($_FILES['immagine']) && $_FILES['immagine']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = '../../uploads/articoli/';
 
-            // Crea la cartella se non esiste
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
@@ -44,7 +40,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (!in_array($ext, $estensioni)) {
                 $messaggio = "Formato immagine non valido. Usa JPG, PNG o WEBP.";
                 $tipoMessaggio = "error";
-            } elseif ($_FILES['immagine']['size'] > 15 * 1024 * 1024) {
+            } elseif ($_FILES['immagine']['size'] > 5 * 1024 * 1024) {
+                // CORRETTO: sia il limite che il messaggio dicono 5MB
                 $messaggio = "L'immagine non deve superare 5MB.";
                 $tipoMessaggio = "error";
             } else {
@@ -133,8 +130,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             <?php endif; ?>
 
-            <!-- enctype="multipart/form-data" è OBBLIGATORIO per l'upload file -->
-             
             <form method="POST" class="form-articolo" enctype="multipart/form-data">
 
                 <div class="form-group">
@@ -181,7 +176,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                               rows="6"></textarea>
                 </div>
 
-                <!-- UPLOAD DELL'IMMAGINE  -->
                 <div class="form-group">
                     <label>Foto articolo</label>
                     <div class="upload-area" id="uploadArea">
