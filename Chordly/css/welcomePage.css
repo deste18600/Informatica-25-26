@@ -1,57 +1,67 @@
 /* ===== 1. RESET BASE ===== */
+/* Rimuovo margini e padding di default del browser e imposto un font pulito */
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    box-sizing: border-box; /* Fondamentale: evita che padding e bordi deformino la larghezza degli elementi */
+    font-family: "Segoe UI", sans-serif;
 }
 
-/* ===== 2. LAYOUT PRINCIPALE ===== */
+/* ===== 2. LAYOUT PRINCIPALE (BODY) ===== */
 body {
-    min-height: 100vh;
+    min-height: 100vh; /* Fa sì che la pagina occupi sempre almeno il 100% dell'altezza dello schermo */
+    
+    /* LA MAGIA DI FLEXBOX PER CENTRARE TUTTO: */
     display: flex;
-    flex-direction: column;
-    justify-content: center;   
-    align-items: center;       
-    /* Sfondo scuro con immagine */
-    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
+    flex-direction: column;  /* Mette il titolo e i bottoni uno sotto l'altro (in colonna) */
+    justify-content: center; /* Centra il contenuto verticalmente */
+    align-items: center;     /* Centra il contenuto orizzontalmente */
+    
+    /* SFONDO: Un trucco classico. Uso un linear-gradient nero mezzo trasparente (0.5) 
+       SOPRA l'immagine per "spegnerla" un po' e far risaltare il testo bianco. */
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
                 url("../images/welcomePageWallpaper.jpg") center/cover no-repeat;
     color: white;
 }
 
-/* ===== 3. TESTI E BOTTONI ===== */
+/* ===== 3. TESTO PRINCIPALE ===== */
 h2 {
     font-size: 32px;
-    font-weight: 700;
-    color: antiquewhite;
-    margin-bottom: 40px;
+    font-weight: bold;
+    color: antiquewhite; /* Un color crema elegante */
+    margin-bottom: 40px; /* Spazio tra il titolo e i bottoni */
     text-align: center;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 2px; /* Allarga lo spazio tra le lettere per dare un look più premium */
 }
 
+/* ===== 4. CONTENITORE BOTTONI ===== */
 .buttons {
-    display: flex;
-    gap: 25px;
+    display: flex; /* Uso flex anche qui per affiancare i due bottoni */
+    gap: 25px;     /* Crea uno spazio preciso di 25px tra un bottone e l'altro */
 }
 
+/* ===== 5. STILE DEI BOTTONI ===== */
 .btn {
-    text-decoration: none;
+    text-decoration: none; /* Toglie la fastidiosa sottolineatura blu dei link */
     font-size: 16px;
     font-weight: bold;
     padding: 14px 35px;
+    
+    /* Creo un bottone arrotondato stile "pillola" */
     border: 2px solid white;
-    border-radius: 30px;
+    border-radius: 30px; 
     background-color: white;
     color: black;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    
+    cursor: pointer; /* Cambia la freccetta del mouse nella "manina" */
+    transition: all 0.3s ease; /* Fa in modo che le animazioni (:hover) siano fluide e non a scatto */
     text-transform: uppercase;
 }
 
+/* Effetto quando ci passi sopra col mouse */
 .btn:hover {
-    background-color: transparent;
-    color: white;
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    background-color: transparent; /* Il bottone si svuota e lascia vedere l'immagine sotto */
+    color: white;                  /* Il testo diventa bianco per contrastare col bordo */
+    transform: scale(1.05);        /* Ingrandisce l'intero bottone del 5% dando un bell'effetto pop-up */
 }

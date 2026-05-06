@@ -2,12 +2,12 @@
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    box-sizing: border-box; /* I bordi non aumentano la larghezza dei div */
 }
 
 body {
     font-family: 'DM Sans', sans-serif;
-    background: #0a0a0a;
+    background: #0a0a0a; /* Sfondo principale nero/grigio scuro */
     color: #e5e1d8;
     min-height: 100vh;
 }
@@ -16,11 +16,11 @@ body {
 .navbar {
     display: flex;
     align-items: center;
-    gap: 24px;
+    justify-content: space-between; /* Spinge logo a sinistra e tasto a destra */
     padding: 0 28px;
     height: 60px;
-    background: rgba(10, 10, 10, 0.95);
-    border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+    background: #111;
+    border-bottom: 2px solid #c5a059; /* Linea dorata inferiore */
 }
 
 .nav-logo {
@@ -32,25 +32,24 @@ body {
 }
 
 .btn-back {
-    margin-left: auto;
-    color: rgba(255,255,255,0.65);
+    color: #fff;
     text-decoration: none;
     font-size: 14px;
     padding: 8px 16px;
-    border: 1px solid rgba(255,255,255,0.2);
+    border: 1px solid #555;
     border-radius: 20px;
     transition: all 0.2s ease;
 }
 
 .btn-back:hover {
     color: #c5a059;
-    border-color: rgba(197, 160, 89, 0.5);
+    border-color: #c5a059;
 }
 
 /* ===== 3. LAYOUT CONTENITORE ===== */
 .container {
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 800px; /* Larghezza ottimale per leggere una lista senza disperdere la vista */
+    margin: 0 auto;   /* Centra il contenitore nello schermo */
     padding: 40px 28px;
 }
 
@@ -60,121 +59,105 @@ h1 {
     color: white;
 }
 
-/* ===== 4. LISTA UTENTI SEGUITI ===== */
+/* ===== 4. LISTA UTENTI SEGUITI (CARD) ===== */
 .seguiti-list {
     display: flex;
-    flex-direction: column;
-    gap: 16px;
+    flex-direction: column; /* Incolonna le card una sotto l'altra */
+    gap: 16px; /* Spazio tra una card e la successiva */
 }
 
+/* Stilo della singola riga utente */
 .seguiti-card {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(15, 15, 15, 0.7);
-    border: 1px solid rgba(255,255,255,0.08);
+    justify-content: space-between; /* TRUCCO: Info utente a sinistra, Bottoni a destra */
+    align-items: center;            /* Centra tutto verticalmente */
+    background: #1a1a1a;            /* Grigio scuro coerente col resto del sito */
+    border: 1px solid #333;
     border-radius: 12px;
     padding: 20px;
     transition: border-color 0.2s ease;
 }
 
 .seguiti-card:hover {
-    border-color: rgba(197, 160, 89, 0.5);
+    border-color: #c5a059; /* Il bordo si illumina d'oro al passaggio del mouse */
 }
 
+/* Gruppo che contiene Avatar + Nome */
 .user-info {
     display: flex;
     align-items: center;
     gap: 16px;
 }
 
+/* Cerchio con le iniziali dell'utente */
 .user-avatar {
     width: 48px;
     height: 48px;
-    border-radius: 50%;
+    border-radius: 50%; /* Rende il div un cerchio perfetto */
     background: rgba(197, 160, 89, 0.2);
     color: #c5a059;
     font-size: 16px;
-    font-weight: 500;
+    font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    flex-shrink: 0; /* TRUCCO: Evita che l'avatar si schiacci se il nome utente è troppo lungo */
 }
 
-.user-details h3 {
-    font-size: 16px;
-    margin-bottom: 4px;
-    color: white;
-}
+.user-details h3 { font-size: 16px; margin-bottom: 4px; color: white; }
+.user-details p { font-size: 13px; color: #888; }
 
-.user-details p {
-    font-size: 13px;
-    color: rgba(255,255,255,0.4);
-    margin: 0;
-}
-
-/* ===== 5. PULSANTI AZIONE ===== */
+/* ===== 5. PULSANTI AZIONE (Visualizza / Smetti di seguire) ===== */
 .user-actions {
     display: flex;
     gap: 12px;
 }
 
-.btn-unfollow,
-.btn-view {
+/* Regole comuni per entrambi i bottoncini */
+.btn-unfollow, .btn-view {
     padding: 8px 16px;
     border-radius: 6px;
     font-size: 13px;
+    font-weight: bold;
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
     text-decoration: none;
 }
 
+/* Bottone per rimuovere il follow (Azione secondaria/distruttiva) */
 .btn-unfollow {
     background: transparent;
-    border: 1px solid rgba(255,255,255,0.2);
-    color: rgba(255,255,255,0.65);
+    border: 1px solid #555;
+    color: #bbb;
 }
+.btn-unfollow:hover { border-color: #c5a059; color: #c5a059; }
 
-.btn-unfollow:hover {
-    border-color: #c5a059;
-    color: #c5a059;
-}
-
+/* Bottone per vedere il profilo (Azione principale) */
 .btn-view {
     background: #c5a059;
-    color: #111;
-    font-weight: 500;
+    color: #000;
 }
+.btn-view:hover { background: #d4b06a; }
 
-.btn-view:hover {
-    background: #d4b06a;
-}
-
-/* ===== 6. STATO VUOTO (NESSUN SEGUITO) ===== */
+/* ===== 6. STATO VUOTO (Se non segui nessuno) ===== */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
-    color: rgba(255,255,255,0.4);
+    color: #888;
 }
 
-.empty-state p {
-    margin-bottom: 24px;
-    font-size: 16px;
-}
+.empty-state p { margin-bottom: 24px; font-size: 16px; }
 
+/* Bottone grande per tornare alla vetrina e cercare utenti */
 .btn-primary {
     display: inline-block;
     background: #c5a059;
     color: #111;
     padding: 10px 24px;
-    border-radius: 20px;
+    border-radius: 20px; /* Bottone a pillola */
     text-decoration: none;
-    font-weight: 500;
+    font-weight: bold;
     transition: background 0.2s ease;
 }
-
-.btn-primary:hover {
-    background: #d4b06a;
-}
+.btn-primary:hover { background: #d4b06a; }

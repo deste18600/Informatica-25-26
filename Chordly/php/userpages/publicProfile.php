@@ -1,8 +1,7 @@
 <?php
-// Richiamiamo il controllore
 require_once('../include/menuchoice.php');
 
-// Verifichiamo di chi è il profilo che vogliamo guardare (tramite l'indirizzo web ?id=...)
+// Controllo: Se non c'è un ID valido nella query string, torniamo alla home
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header('Location: mainPage.php');
     exit;
@@ -10,18 +9,16 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $idUtenteProfilo = (int)$_GET['id'];
 
-// Chi sta guardando la pagina? Potrebbe essere un ospite non loggato, quindi usiamo "?? null" per non dare errore
-$idUtenteLoggato = $_SESSION['userId'] ?? null;
+$idUtenteLoggato = $_SESSION['userId'];
 
-// PICCOLA MAGIA: Se l'utente clicca per sbaglio sul *suo* profilo pubblico, 
-// lo reindirizziamo automaticamente al suo profilo privato!
+// se utente preme sul suo profilo pubblico lo riporta sul priavato
 if ($idUtenteLoggato && $idUtenteProfilo === $idUtenteLoggato) {
     header('Location: profilePage.php');
     exit;
 }
 
 try {
-    // 1. Dati generali dell'utente
+    // Dati generali dell'utente
     $sqlUtente = "SELECT idUtente, nome, cognome, email, dataRegistrazione FROM Utente WHERE idUtente = :idProfilo";
     $istruzioneUtente = DBHandler::getPDO()->prepare($sqlUtente);
     $istruzioneUtente->execute([':idProfilo' => $idUtenteProfilo]);
@@ -33,19 +30,19 @@ try {
         exit;
     }
 
-    // 2. Statistiche (Quanti articoli in vendita ha)
+    // Statistiche (Quanti articoli in vendita ha)
     $sqlArticoliCount = "SELECT COUNT(*) as totale FROM ArticoloInVendita WHERE fkUtenteId = :idProfilo AND disponibilita = TRUE";
     $istruzioneCount = DBHandler::getPDO()->prepare($sqlArticoliCount);
     $istruzioneCount->execute([':idProfilo' => $idUtenteProfilo]);
     $statisticheArticoli = $istruzioneCount->fetch();
 
-    // 3. Statistiche (Quanti follower ha)
+    // Statistiche (Quanti follower ha)
     $sqlFollower = "SELECT COUNT(*) as totale FROM Segue WHERE idSeguito = :idProfilo";
     $istruzioneFollower = DBHandler::getPDO()->prepare($sqlFollower);
     $istruzioneFollower->execute([':idProfilo' => $idUtenteProfilo]);
     $numeroFollower = $istruzioneFollower->fetch();
 
-    // 4. Lista dei suoi articoli attualmente in vendita
+    // Lista dei suoi articoli attualmente in vendita
     $sqlArticoli = "SELECT idArticolo, titolo, prezzo, categoria, stato, immagine
                     FROM ArticoloInVendita
                     WHERE fkUtenteId = :idProfilo AND disponibilita = TRUE
@@ -98,39 +95,27 @@ try {
 
 $inizialiAvatar = strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUtente['cognome'], 0, 1));
 ?>
+
+
+
+
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../../css/mainPage.css">
-    <link rel="stylesheet" href="../../css/profilePage.css">
+    <link rel="stylesheet" href="../../css/publicProfile.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <title>Profilo di <?php echo htmlspecialchars($datiUtente['nome'] . ' ' . $datiUtente['cognome']); ?> - Chordly</title>
-    <!-- (Ho mantenuto intatti i tuoi stili interni per le stelle delle recensioni e il layout) -->
-    <style>
-        .profile-actions { display: flex; gap: 12px; margin-top: 20px; }
-        .btn-follow { flex: 1; padding: 10px 20px; border-radius: 8px; border: 1px solid rgba(197,160,89,0.5); background: transparent; color: #c5a059; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
-        .btn-follow:hover { background: rgba(197,160,89,0.1); }
-        .btn-follow.following { background: rgba(197,160,89,0.15); border-color: #c5a059; }
-        .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); margin-top: 16px; }
-        .review-form { background: rgba(15,15,15,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
-        .rating-stars { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 4px; }
-        .rating-stars input[type="radio"] { display: none; }
-        .rating-stars label { font-size: 28px; color: rgba(255,255,255,0.2); cursor: pointer; transition: color 0.15s; }
-        .rating-stars label:hover, .rating-stars label:hover ~ label, .rating-stars input[type="radio"]:checked ~ label { color: #c5a059; }
-        .review-form textarea { padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); color: white; font-family: 'DM Sans', sans-serif; font-size: 14px; resize: vertical; min-height: 80px; }
-        .review-form button { padding: 10px 20px; border-radius: 8px; border: none; background: #c5a059; color: #111; font-weight: 500; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; align-self: flex-start; }
-        .review-form button:hover { background: #d4b06a; }
-        .review-item { background: rgba(15,15,15,0.7); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px 20px; margin-bottom: 12px; }
-        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .review-header strong { color: white; font-weight: 500; font-size: 14px; }
-        .review-date { font-size: 12px; color: rgba(255,255,255,0.4); }
-        .review-stars { color: #c5a059; font-size: 16px; margin-bottom: 6px; }
-        .review-comment { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.6; }
-        .media-voto { color: #c5a059; font-size: 16px; font-weight: 500; margin-bottom: 16px; }
-        .alert-success { padding: 10px 14px; border-radius: 8px; background: rgba(80,200,100,0.1); border: 1px solid rgba(80,200,100,0.3); color: #5cc877; font-size: 14px; margin-bottom: 16px; }
-    </style>
+
 </head>
 <body>
 
@@ -188,7 +173,7 @@ $inizialiAvatar = strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUte
             <h2 class="section-title">Lascia una recensione</h2>
 
             <?php if (isset($_GET['review_success'])): ?>
-                <div class="alert-success">✓ Recensione inviata con successo! Grazie per il tuo feedback.</div>
+                <div class="alert-success">Recensione inviata con successo!.</div>
             <?php endif; ?>
 
             <?php if ($giaRecensito): ?>
@@ -273,6 +258,19 @@ $inizialiAvatar = strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUte
         </div>
 
     </main>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     <!-- JS per gestire il pulsante SEGUI (Identico a quello nella pagina dettaglio articolo) -->
     <script>

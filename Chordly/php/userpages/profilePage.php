@@ -1,39 +1,63 @@
 <?php
-// 1. Richiamiamo il controllore centrale
 require_once('../include/menuchoice.php');
 
-// Salviamo il nostro ID
 $idUtenteLoggato = $_SESSION['userId'];
 
+
+
+
+
 try {
-    // === BLOCCO 1: Dati Personali ===
+    // Dati Personali 
     $sqlUtente = "SELECT nome, cognome, email, dataRegistrazione FROM Utente WHERE idUtente = :userId";
     $istruzioneUtente = DBHandler::getPDO()->prepare($sqlUtente);
     $istruzioneUtente->execute([':userId' => $idUtenteLoggato]);
     $datiUtente = $istruzioneUtente->fetch();
 
-    // === BLOCCO 2: Conteggio dei tuoi articoli in vendita ===
+
+
+
+    //  Conteggio dei tuoi articoli in vendita 
     $sqlConteggioArticoli = "SELECT COUNT(*) as totale FROM ArticoloInVendita WHERE fkUtenteId = :userId";
     $istruzioneConteggio = DBHandler::getPDO()->prepare($sqlConteggioArticoli);
     $istruzioneConteggio->execute([':userId' => $idUtenteLoggato]);
     $statisticheArticoli = $istruzioneConteggio->fetch();
 
-    // === BLOCCO 3: Quante persone ti seguono? ===
+
+
+
+
+    // Numero follower 
     $sqlSeguaci = "SELECT COUNT(*) as totale FROM Segue WHERE idSeguito = :userId";
+
     $istruzioneSeguaci = DBHandler::getPDO()->prepare($sqlSeguaci);
     $istruzioneSeguaci->execute([':userId' => $idUtenteLoggato]);
     $numeroFollower = $istruzioneSeguaci->fetch();
 
-    // === BLOCCO 4: La lista di tutti i TUOI annunci ===
+
+
+
+    //  La lista articoli in vendita 
     $sqlMieiArticoli = "SELECT idArticolo, titolo, prezzo, categoria, stato 
                         FROM ArticoloInVendita 
                         WHERE fkUtenteId = :userId ORDER BY dataPost DESC";
+
     $istruzioneMieiArticoli = DBHandler::getPDO()->prepare($sqlMieiArticoli);
     $istruzioneMieiArticoli->execute([':userId' => $idUtenteLoggato]);
-    // fetchAll() perché potresti avere più di un annuncio
+
+
+
+    // fetchAll() perché voglio tutti gli articoli (con fetch si ferma al primo)
     $mieiArticoli = $istruzioneMieiArticoli->fetchAll();
 
-    // === BLOCCO 5: La lista di ciò che hai ACQUISTATO ===
+
+
+
+
+
+
+
+    // La lista di ciò che hai ACQUISTATO  
     // Uniamo (JOIN) tre tabelle: Acquisti, Articoli e Utente (per sapere il nome di chi ce lo ha venduto)
     $sqlAcquisti = "SELECT a.idArticolo, a.titolo, a.prezzo, a.categoria, a.immagine,
                            u.nome as venditore_nome, u.cognome as venditore_cognome,
@@ -43,6 +67,7 @@ try {
                     JOIN Utente u ON a.fkUtenteId = u.idUtente
                     WHERE ac.fkAcquirenteId = :userId
                     ORDER BY ac.dataAcquisto DESC";
+            
     $istruzioneAcquisti = DBHandler::getPDO()->prepare($sqlAcquisti);
     $istruzioneAcquisti->execute([':userId' => $idUtenteLoggato]);
     $mieiAcquisti = $istruzioneAcquisti->fetchAll();
@@ -51,6 +76,12 @@ try {
     die("Errore nel recupero dati del profilo: " . $e->getMessage());
 }
 ?>
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -70,30 +101,42 @@ try {
     <main class="container">
 
         <!-- CARD PRINCIPALE DEL PROFILO -->
+
         <div class="profile-card">
             <div class="profile-header">
                 <div class="profile-avatar">
+
                     <!-- Estraiamo le iniziali dal nome e cognome -->
+
+                    <!-- strtoupper() per mettere tutto maiuscolo, substr() per prendere solo la prima lettera di nome e cognome 0 e da dove iniziare 1 e quella da prendere -->
+                    
                     <?php echo strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUtente['cognome'], 0, 1)); ?>
                 </div>
+
+                   <!-- questa parte di codice mostra il nome e cognome dell'utente e usa echo per stampare (nome e cognome) su html e htmlspecialchars per proteggere da cross site scripting xss  -->
                 <h1 class="profile-name">
                     <?php echo htmlspecialchars($datiUtente['nome'] . ' ' . $datiUtente['cognome']); ?>
                 </h1>
+
+                 <!-- questa parte di codice mostra la email dell'utente e usa echo per stamparla su html e htmlspecialchars per proteggere da cross site scripting xss  -->
                 <p class="profile-email">
                     <?php echo htmlspecialchars($datiUtente['email']); ?>
                 </p>
+
             </div>
 
-            <!-- STATISTICHE (Numeri) -->
+            <!-- STATISTICHE  -->
             <div class="profile-stats">
                 <div class="stat">
                     <div class="stat-number"><?php echo $statisticheArticoli['totale']; ?></div>
                     <p class="stat-label">Articoli in vendita</p>
                 </div>
+
                 <div class="stat">
                     <div class="stat-number"><?php echo $numeroFollower['totale']; ?></div>
                     <p class="stat-label">Follower</p>
                 </div>
+
                 <div class="stat">
                     <div class="stat-number"><?php echo count($mieiAcquisti); ?></div>
                     <p class="stat-label">Acquisti effettuati</p>
@@ -103,10 +146,6 @@ try {
             <div class="profile-actions">
                 <a href="addArticle.php" class="btn-action btn-sell">+ Vendi articolo</a>
             </div>
-
-            <p class="join-date">
-                Membro dal <?php echo date('d/m/Y', strtotime($datiUtente['dataRegistrazione'])); ?>
-            </p>
         </div>
 
         <!-- SEZIONE: I TUOI ANNUNCI (Quelli che stai vendendo) -->
@@ -129,6 +168,7 @@ try {
                           L'attributo onclick="return confirm(...)" è un trucco JavaScript velocissimo 
                           per mostrare una finestrella di conferma prima di far cliccare il link!
                         -->
+
                         <a href="deleteArticle.php?id=<?php echo $annuncio['idArticolo']; ?>"
                            onclick="return confirm('Sei sicuro di voler eliminare definitivamente questo annuncio?')"
                            class="btn-delete">

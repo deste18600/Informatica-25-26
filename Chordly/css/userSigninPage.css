@@ -1,38 +1,44 @@
 /* ===== 1. RESET BASE ===== */
+/* Rimuove spazi indesiderati e imposta un font leggibile e moderno */
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    box-sizing: border-box; /* Essenziale: include padding e bordi nella larghezza totale degli elementi */
+    font-family: "Segoe UI", sans-serif;
 }
 
-/* ===== 2. LAYOUT PRINCIPALE ===== */
+/* ===== 2. LAYOUT PRINCIPALE (Sfondo e Centramento) ===== */
 body {
     min-height: 100vh;
+    
+    /* Flexbox per centrare il form di registrazione perfettamente in mezzo allo schermo */
     display: flex;
     justify-content: center; 
     align-items: center; 
+    padding: 20px; /* Evita che il form tocchi i bordi su schermi molto piccoli */
+    
+    /* Sfondo: Immagine fissa coperta da una "patina" scura (0.65) per far leggere bene il testo */
     background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), 
                 url("../images/chitarraImageLoginSignin.jpg") center/cover fixed; 
-    padding: 20px;
 }
 
-/* ===== 3. CONTENITORE FORM REGISTRAZIONE ===== */
+/* ===== 3. CONTENITORE PRINCIPALE DELLA REGISTRAZIONE ===== */
 .signin-container {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px);
+    background: rgba(15, 15, 15, 0.85); /* Sfondo grigio scuro leggermente trasparente, elegante e pulito */
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Bordino finissimo per dare tridimensionalità */
     width: 100%;
-    max-width: 700px;
+    max-width: 700px; /* Il contenitore non sarà mai più largo di 700px, perfetto per schermi grandi */
     padding: 40px; 
     text-align: center;
+    
+    /* Flexbox interno per incolonnare il titolo e il form */
     display: flex;
     flex-direction: column;
     align-items: center; 
 }
 
+/* Limito la larghezza del form interno per non farlo "spalmare" troppo */
 #userSigninForm {
     width: 100%;
     max-width: 400px;
@@ -41,51 +47,56 @@ body {
 h2 {
     color: white;
     font-size: 28px;
-    font-weight: 700;
     margin-bottom: 25px;
     letter-spacing: 1px;
     text-transform: uppercase;
 }
 
-/* ===== 4. GRIGLIA INPUT E BOTTONI ===== */
+/* ===== 4. GRIGLIA INPUT (Campi di testo) ===== */
+
+/* Questa classe serve per mettere due campi (es. Nome e Cognome) sulla stessa riga */
 .input-row {
     display: flex;
-    gap: 15px;
+    gap: 15px; /* Crea uno spazio preciso tra i due campi affiancati */
 }
 
+/* Gestisce il singolo blocco: Etichetta + Campo di testo */
 .input-group {
     margin-bottom: 18px;
-    text-align: left;
-    flex: 1; 
+    text-align: left; /* Allinea l'etichetta (Nome, Email, ecc.) a sinistra */
+    flex: 1; /* Se usato dentro .input-row, fa in modo che i due campi siano larghi uguali */
 }
 
 label {
-    display: block;
+    display: block; /* Mette l'etichetta sopra il campo di testo, non di fianco */
     margin-bottom: 6px;
     font-size: 14px;
     color: rgba(255, 255, 255, 0.8);
-    margin-left: 10px;
+    margin-left: 10px; /* Piccolo rientro estetico */
 }
 
+/* Stile per i campi dove l'utente scrive */
 input {
     width: 100%;
     padding: 12px 18px;
-    border-radius: 30px;
-    border: 1px solid rgba(255,255,255,0.2);
-    background: rgba(255,255,255,0.9);
+    border-radius: 30px; /* Arrotonda completamente i lati (stile pillola) */
+    border: 1px solid transparent;
+    background: rgba(255,255,255,0.9); /* Bianco quasi totalmente opaco */
     color: #222;
     font-size: 15px;
-    transition: 0.3s ease;
-    outline: none;
+    outline: none; /* Rimuove il bordo blu predefinito del browser */
+    transition: all 0.3s ease; /* Rende fluido il passaggio di stato quando ci clicchi */
 }
 
+/* Effetto quando l'utente clicca dentro il campo per scrivere */
 input:focus {
-    background: #fff;
-    box-shadow: 0 0 15px rgba(255,255,255,0.2);
+    background: #fff; /* Diventa bianco puro */
+    border: 1px solid #c5a059; /* Il bordo si colora del tuo oro per far capire dove si sta scrivendo */
 }
 
+/* ===== 5. BOTTONE DI INVIO ===== */
 .btn {
-    width: 100%;
+    width: 100%; /* Il bottone prende tutta la larghezza disponibile */
     margin-top: 15px;
     padding: 14px;
     border-radius: 30px;
@@ -95,24 +106,25 @@ input:focus {
     font-weight: bold;
     font-size: 16px;
     cursor: pointer;
-    transition: all 0.3s ease;
     text-transform: uppercase;
+    transition: all 0.3s ease;
 }
 
+/* Animazione al passaggio del mouse */
 .btn:hover {
-    background-color: #f0f0f0;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    background-color: #f0f0f0; /* Grigio chiarissimo */
+    transform: translateY(-2px); /* Si solleva leggermente verso l'alto */
 }
 
-.footer-link {
+/* ===== 6. LINK A FONDO PAGINA ("Hai già un account?") ===== */
+.link {
     margin-top: 20px;
     font-size: 14px;
     color: #ccc;
 }
 
-.footer-link a {
+.link a {
     color: white;
     text-decoration: none;
-    font-weight: bold;
+    font-weight: bold; 
 }

@@ -1,32 +1,36 @@
 /* ===== 1. RESET BASE ===== */
+/* Rimuove spazi indesiderati e imposta un font leggibile e moderno */
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    box-sizing: border-box; /* Essenziale per calcolare correttamente le larghezze */
+    font-family: "Segoe UI", sans-serif;
 }
 
-/* ===== 2. LAYOUT PRINCIPALE ===== */
+/* ===== 2. LAYOUT PRINCIPALE (Sfondo e Centramento) ===== */
 body {
-    min-height: 100vh;
+    min-height: 100vh; /* La pagina copre sempre l'altezza totale dello schermo */
+    
+    /* Flexbox per centrare il form di login al centro esatto della pagina */
     display: flex;
     justify-content: center; 
     align-items: center;        
-    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+    padding: 20px; /* Margine di sicurezza per schermi molto piccoli */
+    
+    /* Sfondo: Immagine coperta da una sfumatura scura (0.65) coerente con la registrazione */
+    background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), 
                 url("../images/chitarraImageLoginSignin.jpg") center/cover fixed; 
     color: white;
 }
 
-/* ===== 3. CONTENITORE FORM ===== */
+/* ===== 3. CONTENITORE FORM LOGIN ===== */
 .login-container {
-    background: rgba(255, 255, 255, 0.1); 
-    backdrop-filter: blur(10px); 
-    padding: 40px;
+    background: rgba(15, 15, 15, 0.85); /* Grigio scuro elegante, coerente con il resto del sito */
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Bordo sottilissimo per staccare dal fondo */
+    padding: 40px;
     width: 100%;
-    max-width: 400px;
+    max-width: 400px; /* Più stretto rispetto alla registrazione (700px) perché ha meno campi */
     text-align: center;
 }
 
@@ -38,41 +42,44 @@ h2 {
     text-transform: uppercase;
 }
 
-/* ===== 4. INPUT E BOTTONI ===== */
+/* ===== 4. INPUT E ETICHETTE ===== */
 .input-group {
     margin-bottom: 20px;
-    text-align: left;
+    text-align: left; /* Allinea il testo delle etichette (Email, Password) a sinistra */
 }
 
 label {
-    display: block;
+    display: block; /* Posiziona l'etichetta sopra il campo di testo */
     margin-bottom: 8px;
     font-size: 14px;
     color: rgba(255, 255, 255, 0.8);
-    margin-left: 5px;
+    margin-left: 10px;
 }
 
+/* Stile base del campo dove l'utente digita */
 input {
     width: 100%;
     padding: 12px 20px;
-    border-radius: 30px;
-    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 30px; /* Effetto pillola */
+    border: 1px solid transparent;
     background: rgba(255,255,255,0.9);
-    color: #333;
+    color: #222;
     outline: none;
-    transition: 0.3s ease;
+    transition: all 0.3s ease; /* Transizione morbida */
     font-size: 15px;
 }
 
+/* Effetto quando l'utente sta scrivendo dentro il campo */
 input:focus {
     background: #fff;
-    box-shadow: 0 0 15px rgba(255,255,255,0.2);
+    border: 1px solid #c5a059; /* Il bordo diventa dorato (coerenza con il brand) */
 }
 
+/* ===== 5. BOTTONE DI ACCESSO ===== */
 .btn {
     width: 100%;
     margin-top: 10px;
-    padding: 12px;
+    padding: 14px; /* Leggermente più alto per essere più cliccabile */
     border-radius: 30px;
     border: none;
     background-color: white;
@@ -81,14 +88,16 @@ input:focus {
     cursor: pointer;
     transition: all 0.3s ease;
     text-transform: uppercase;
+    font-size: 16px;
 }
 
+/* Animazione del bottone al passaggio del mouse */
 .btn:hover {
-    background-color: #e0e0e0;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    background-color: #f0f0f0;
+    transform: translateY(-2px); /* Si sposta verso l'alto di 2 pixel (feedback tattile) */
 }
 
+/* ===== 6. LINK INFERIORE ("Non hai un account?") ===== */
 .footer-link {
     margin-top: 20px;
     font-size: 14px;

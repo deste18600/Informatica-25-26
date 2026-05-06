@@ -1,16 +1,15 @@
 <?php
-// 1. Ricolleghiamoci alla sessione dell'utente
+// ricollegamento pe rcapire quale sessione è quella da distruggere
 session_start();
 
-// 2. Svuotiamo tutte le variabili che avevamo salvato per lui
+// distruggiamo la sessione rendendola uguale ad un array vuoto di fatto svuotandola
 $_SESSION = array();
 
-// 3. Distruggiamo definitivamente la sessione
+// metodo vero e proprio per distruggere la sessione
 session_destroy();
 
-// 4. Lo riportiamo alla pagina iniziale di benvenuto
+// una volta che la sessione è distrutta, portiamo l'utente alla pagina di benvenuto
 header('Location: /CHORDLY/php/userpages/welcomePage.php');
 
-// 5. Fermiamo l'esecuzione della pagina
-exit;
+// Fermiamo l'esecuzione della pagina come per loggedin.php per sicurezza in modo da evitare che vengono usate istruzioni dopo il logout
 ?>
