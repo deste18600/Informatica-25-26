@@ -1,9 +1,7 @@
-# Relazione Tecnica Progetto Chordly
 
 **Studente:** Simone D’Este  
 **Classe:** 5IE  
 
----
 
 # 1. Introduzione al Progetto
 

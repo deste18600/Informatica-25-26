@@ -24,7 +24,6 @@ try {
 
     if ($filtroCategoria !== 'tutti') {
         // .= unisce la mia stringa letta in $filtroCategoria alla query in modo da filtrare per quella specifica categoria
-
         $sql .= " AND a.categoria = :categoria";
 
         // Aggiungo il parametro per il prepared statement (il valore di $filtroCategoria) 
@@ -41,7 +40,6 @@ try {
 
     // Se l'utente ha scritto qualcosa nella barra ($testoCercato)
     if ($testoCercato !== '') {
-
         $sql .= " AND (a.titolo LIKE :ricerca OR a.categoria LIKE :ricerca)";
 
         //prepared statement, mettendo % prima e dopo il testo cercato per far capire al database che può esserci qualsiasi cosa prima o dopo
@@ -72,16 +70,6 @@ try {
 }
 ?>
 
-
-
-
-
-
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -96,13 +84,11 @@ try {
     <nav class="navbar">
         <a class="nav-logo" href="mainPage.php">CHORDLY</a>
         
-        <!-- Barra di ricerca: stampa del testo che l'utente ha appena cercato -->
         <div class="nav-search">
             <input type="text" placeholder="Cerca chitarre, bassi, tastiere..." id="searchInput" 
                    value="<?php echo htmlspecialchars($testoCercato); ?>">
         </div>
         
-        <!-- Menu utente -->
         <div class="nav-actions">
             <a href="followingPage.php" class="nav-link">Seguiti</a>
             <a href="profilePage.php" class="nav-link">Profilo</a>
@@ -111,9 +97,7 @@ try {
         </div>
     </nav>
 
-    <!-- BARRA DEI FILTRI (Categorie, Stato, Prezzo) -->
     <div class="filters-bar">
-
         <button class="chip" onclick="filterCategory(this, 'tutti')">Tutto</button>
         <button class="chip" onclick="filterCategory(this, 'chitarre')">Chitarre</button>
         <button class="chip" onclick="filterCategory(this, 'bassi')">Bassi</button>
@@ -124,7 +108,6 @@ try {
         
         <div class="filter-divider"></div>
         
-        <!-- Filtro a tendina per lo stato -->
         <select class="chip select-chip" id="statoFilter" onchange="applyFilters()">
             <option value="" <?php if($filtroStato == '') echo 'selected'; ?>>Qualsiasi stato</option>
             <option value="ottimo" <?php if($filtroStato == 'ottimo') echo 'selected'; ?>>Ottimo</option>
@@ -132,7 +115,6 @@ try {
             <option value="difettato" <?php if($filtroStato == 'difettato') echo 'selected'; ?>>Difettato</option>
         </select>
         
-        <!-- Filtro a tendina per ordinamento prezzo -->
         <select class="chip select-chip" id="prezzoFilter" onchange="applyFilters()">
             <option value="" <?php if($filtroPrezzo == '') echo 'selected'; ?>>Ordina Prezzo</option>
             <option value="asc" <?php if($filtroPrezzo == 'asc') echo 'selected'; ?>>Prezzo: Crescente (↑)</option>
@@ -140,26 +122,22 @@ try {
         </select>
     </div>
 
-    <!-- CONTENITORE PRINCIPALE DEGLI ARTICOLI -->
-     
     <main class="main-content">
-<div class="product-grid" id="productGrid"><?php 
-            if (empty($articoli)): 
-        ?>
-            <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.4);">
-                <p>Nessun articolo trovato con i filtri selezionati.</p>
-            </div>
-        <?php else: foreach ($articoli as $articolo): ?>
-                    
+        <div class="product-grid" id="productGrid">
+            <?php if (empty($articoli)): ?>
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
+                    <p>Nessun articolo trovato con i filtri selezionati.</p>
+                </div>
+            <?php else: ?>
+                <?php foreach ($articoli as $articolo): ?>
                     <div class="product-card" onclick="openArticle(<?php echo $articolo['idArticolo']; ?>)">
-
                         <div class="card-image-wrapper">
                             <?php if ($articolo['immagine']): ?>
                                 <img src="../../uploads/articoli/<?php echo htmlspecialchars($articolo['immagine']); ?>"
                                      alt="<?php echo htmlspecialchars($articolo['titolo']); ?>"
                                      class="card-image">
                             <?php else: ?>
-                                <div class="card-image placeholder-img" style="font-size: 48px;"></div>
+                                <div class="card-image placeholder-img"></div>
                             <?php endif; ?>
                             
                             <span class="stato-badge <?php echo htmlspecialchars($articolo['stato']); ?>">
@@ -175,19 +153,10 @@ try {
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
-
         </div>
     </main>
 
-
-
-
-
-
-
-    <!-- JAVASCRIPT  -->
     <script>
-
         // Leggiamo dall'indirizzo web cosa ha scelto l'utente
         const urlParams = new URLSearchParams(window.location.search);
         let filtroCategoriaSelezionata = urlParams.get('categoria') || 'tutti';
@@ -232,8 +201,6 @@ try {
             window.location.href = 'articleDetail.php?id=' + idArticolo;
         }
     </script>
-
-
 
 </body>
 </html>

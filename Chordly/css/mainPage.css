@@ -3,8 +3,8 @@ body {
     min-height: 100vh;
     background: #0a0a0a; 
     color: #e5e1d8;
+    margin: 0;
 }
-
 
 .navbar {
     position: sticky; /*barra incollata in alto*/
@@ -19,6 +19,12 @@ body {
     border-bottom: 1px solid #c5a059; 
 }
 
+@media (min-width: 1400px) {
+    .navbar {
+        padding: 0 calc((100% - 1400px) / 2 + 28px);
+    }
+}
+
 .nav-logo {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 26px;
@@ -26,7 +32,6 @@ body {
     color: #c5a059;
     text-decoration: none;
 }
-
 
 .nav-search {
     flex: 1; 
@@ -53,7 +58,6 @@ body {
 .nav-link { color: #888; text-decoration: none; font-size: 14px; transition: color 0.2s ease; }
 .nav-link:hover { color: white; }
 
-
 .btn-sell {
     background: #c5a059;
     color: #111;
@@ -64,7 +68,6 @@ body {
     border-radius: 20px;
 }
 
-
 .filters-bar {
     display: flex;
     align-items: center;
@@ -72,6 +75,14 @@ body {
     padding: 14px 28px;
     background: #111;
     border-bottom: 1px solid #222;
+    max-width: 1400px; 
+    margin: 0 auto;
+}
+
+@media (max-width: 1400px) {
+    .filters-bar {
+        margin: 0;
+    }
 }
 
 .filters-bar::-webkit-scrollbar {
@@ -90,15 +101,12 @@ body {
     white-space: nowrap; 
 }
 
-
 .chip.active { background: #c5a059; border-color: #c5a059; color: #111; font-weight: bold; }
-
 
 .select-chip { appearance: none; padding-right: 28px; }
 .select-chip option { background: #1a1a1a; color: white; }
 
 .filter-divider { width: 1px; height: 20px; background: #333; margin: 0 4px; }
-
 
 .main-content {
     padding: 28px 28px 60px;
@@ -108,13 +116,10 @@ body {
 
 .results-label { font-size: 13px; color: #888; margin-bottom: 20px; }
 
-/* IL CUORE DEL SITO: La griglia responsive automagica */
 .product-grid {
     display: grid;
-    /* Crea automaticamente quante più colonne possibili. Ogni colonna si espande per 
-       riempire lo spazio (1fr), ma non sarà mai più stretta di 180px. */
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
 }
 
 /* SINGOLA CARD DELL'ARTICOLO */
@@ -125,6 +130,7 @@ body {
     overflow: hidden; /* Taglia via gli spigoli dell'immagine se escono dai bordi arrotondati della card */
     cursor: pointer;
     transition: border-color 0.2s ease;
+    width: 100%;
 }
 
 .product-card:hover { border-color: #c5a059; }
@@ -169,7 +175,6 @@ body {
     color: #e5e1d8;
     font-size: 13px;
     margin-bottom: 3px;
-
 }
 
 .card-category { color: #888; font-size: 11px; }
