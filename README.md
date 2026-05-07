@@ -124,21 +124,20 @@ Per l’accesso al database è stato utilizzato PDO perchè garantisce.
 
 # 8. Transazioni 
 
-La pagina `buyArticle.php` utilizza transazioni PDO per garantire coerenza durante gli acquisti.
+La pagina `buyArticle.php` utilizza transazioni  per garantire coerenza durante gli acquisti.
 
 ## Codice
 
 ```php
 $pdo->beginTransaction();
 
-// Operazione A
+
 $sqlA = "
 UPDATE ArticoloInVendita
 SET disponibilita = FALSE
 WHERE idArticolo = :articleId
 ";
 
-// Operazione B
 $sqlB = "
 INSERT INTO Acquisti
 (fkAcquirenteId, fkArticoloId)
@@ -150,7 +149,7 @@ $pdo->commit();
 ```
 
 ---
-Utilizzo le transazioni anche senza effettivo denaro  per assicurasi che :
+Utilizzo le transazioni anche senza effettivo denaro per assicurasi che :
 
 - nessuna operazione venga salvata parzialmente;
 - il database resti consistente.

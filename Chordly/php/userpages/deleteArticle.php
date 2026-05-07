@@ -3,7 +3,7 @@ require_once('../include/menuchoice.php');
 
 $idUtenteLoggato = $_SESSION['userId'];
 
-// VALIDAZIONE: controlliamo che ci sia un ID e che sia un numero valido
+// validazione dell'id della sessione
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header('Location: profilePage.php');
     exit;
@@ -13,8 +13,7 @@ $idArticoloDaEliminare = (int)$_GET['id'];
 
 try {
     
-    // Eliminiamo l'articolo SOLAMENTE se il suo idArticolo corrisponde E se l'fkUtenteId è uguale al nostro!
-
+    // Eliminazione dell'articolo se il suo idArticolo corrisponde E se l'fkUtenteId è uguale a quello della sessione
     $sql = "DELETE FROM ArticoloInVendita WHERE idArticolo = :idArticolo AND fkUtenteId = :idUtente";
     
     $istruzione = DBHandler::getPDO()->prepare($sql);

@@ -16,16 +16,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
     try {
-       // Prepariamo il comando SQL per inserire un nuovo utente.
-        // Al posto di inserire le variabili direttamente nella stringa, usiamo i "segnaposto" questo blocca sul nascere gli attacchi "SQL Injection".
+        //  comando SQL inserimento utente.
+        // uso "segnaposto" per attacchi "SQL Injection".
         $sql = "INSERT INTO Utente (nome, cognome, email, password) 
                 VALUES (:nome, :cognome, :email, :password)";
         
 
-        // Prepariamo la query
         $istruzione = DBHandler::getPDO()->prepare($sql);
         
-        // Sostituiamo i segnaposto con i dati veri e inviamo il comando
+        // Sostituiamo i segnaposto con i dati 
         $istruzione->execute([
             ':nome' => $nome,
             ':cognome' => $cognome,
@@ -33,15 +32,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ':password' => $passwordCriptata
         ]);
 
-        // Se tutto ok lo porto alla login page
+
         header("Location: userLoginpage.php?reg=success");
         
-        // fermiamo tutto dopo l'header per evitare che venga eseguito altro codice
         exit(); 
 
     } catch (PDOException $e) {
-        // Se si verifica un errore qui
-        // Lo rimandiamo indietro con un avviso.
         header("Location: userSigninPage.php?error=email_esistente");
         exit();
     }

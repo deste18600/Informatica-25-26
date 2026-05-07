@@ -37,21 +37,8 @@ CREATE TABLE Segue (
     FOREIGN KEY (idSeguito) REFERENCES Utente(idUtente) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE Commenti (
-    idCommento INT AUTO_INCREMENT PRIMARY KEY,
-    idUtente INT, 
-    idArticolo INT NOT NULL, 
-    commento TEXT NOT NULL,
-    dataCommento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (idUtente) REFERENCES Utente(idUtente) 
-        ON DELETE SET NULL    
-        ON UPDATE CASCADE,
-    FOREIGN KEY (idArticolo) REFERENCES ArticoloInVendita(idArticolo) 
-        ON DELETE CASCADE     
-        ON UPDATE CASCADE
-);
 
-CREATE TABLE Acquisti (
+CREATE TABLE Acquista (
     idAcquisto INT AUTO_INCREMENT PRIMARY KEY,
     fkAcquirenteId INT NOT NULL,
     fkArticoloId INT NOT NULL,
@@ -68,9 +55,6 @@ CREATE TABLE RecensioneUtente (
     commento TEXT,
     dataRecensione TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY unica_recensione (fkRecensoreId, fkRecensitoId),
-        ON DELETE CASCADE 
-        ON UPDATE CASCADE,
-    FOREIGN KEY (fkRecensitoId) REFERENCES Utente(idUtente) 
-        ON DELETE CASCADE 
-        ON UPDATE CASCADE
+    FOREIGN KEY (fkRecensoreId) REFERENCES Utente(idUtente) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (fkRecensitoId) REFERENCES Utente(idUtente) ON DELETE CASCADE ON UPDATE CASCADE
 );

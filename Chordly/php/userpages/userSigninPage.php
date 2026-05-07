@@ -23,16 +23,14 @@ require_once('../include/menuchoice.php');
         <?php
 
         if (isset($_GET['error']) && $_GET['error'] == 'email_esistente') {
-            echo '<p style="color: #ff6b6b; text-align: center; margin-bottom: 15px;">Questa email è già registrata. Prova ad accedere.</p>';
+            echo '<p style="color: #ff6b6b; text-align: center; margin-bottom: 15px;">Questa email è già registrata.
+             Prova ad accedere.</p>';
         }
         ?>
 
         <!-- Invia i dati al file signIn.php -->
         <form action="signIn.php" id="userSigninForm" method="POST"> 
             
-             <!-- imput-row per mettere nome e cognome sulla stessa linea-->
-    
-             <!-- input group per gestire la logica del singolo componente  -->
             <div class="input-row"> 
 
                 <div class="input-group">
@@ -45,26 +43,20 @@ require_once('../include/menuchoice.php');
                 </div>
             </div>
 
-                <!-- imput group per mettere email e password su linee separate,  -->
-                 
-               
-
             <div class="input-group"> 
                 <label for="email">Email</label>
 
-                <!-- L'attributo name="mail" corrisponde a $_POST["mail"] in signIn.php  metto sul placeholder un essempio di mail-->
+                <!-- L'attributo name="mail" corrisponde a $_POST["mail"] in signIn.php  -->
                 <input type="email" id="email" name="mail" placeholder="email@esempio.it" required>
             </div>
             
-             <!-- imput group per mettere email e password su linee separate -->
             <div class="input-group">
                 <label for="password">Password</label>
 
-                 <!-- L'attributo name="password" è importante: corrisponde a $_POST["password"] in signIn.php e metto placeholder -->
+                 <!--  name="password" corrisponde a $_POST["password"] in signIn.php  -->
                 <input type="password" id="password" name="password" placeholder="Scegli una password" required>
             </div>
             
-             <!-- bottone di submit per inviare a signIn.php -->
             <button type="submit" class="btn">Conferma e Registrati</button>
 
             <div class="footer-link">

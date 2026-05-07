@@ -29,7 +29,6 @@ try {
 
     // Numero follower 
     $sqlSeguaci = "SELECT COUNT(*) as totale FROM Segue WHERE idSeguito = :userId";
-
     $istruzioneSeguaci = DBHandler::getPDO()->prepare($sqlSeguaci);
     $istruzioneSeguaci->execute([':userId' => $idUtenteLoggato]);
     $numeroFollower = $istruzioneSeguaci->fetch();
@@ -47,7 +46,6 @@ try {
 
 
 
-    // fetchAll() perché voglio tutti gli articoli (con fetch si ferma al primo)
     $mieiArticoli = $istruzioneMieiArticoli->fetchAll();
 
 
@@ -58,7 +56,8 @@ try {
 
 
     // La lista di ciò che hai ACQUISTATO  
-    // Uniamo (JOIN) tre tabelle: Acquisti, Articoli e Utente (per sapere il nome di chi ce lo ha venduto)
+    // Uniamo (JOIN) tre tabelle: Acquisti, Articoli e Utente 
+
     $sqlAcquisti = "SELECT a.idArticolo, a.titolo, a.prezzo, a.categoria, a.immagine,
                            u.nome as venditore_nome, u.cognome as venditore_cognome,
                            ac.dataAcquisto
@@ -100,32 +99,28 @@ try {
 
     <main class="container">
 
-        <!-- CARD PRINCIPALE DEL PROFILO -->
+        <!-- card principale del profilo -->
 
         <div class="profile-card">
             <div class="profile-header">
                 <div class="profile-avatar">
-
-                    <!-- Estraiamo le iniziali dal nome e cognome -->
-
-                    <!-- strtoupper() per mettere tutto maiuscolo, substr() per prendere solo la prima lettera di nome e cognome 0 e da dove iniziare 1 e quella da prendere -->
                     
                     <?php echo strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUtente['cognome'], 0, 1)); ?>
                 </div>
 
-                   <!-- questa parte di codice mostra il nome e cognome dell'utente e usa echo per stampare (nome e cognome) su html e htmlspecialchars per proteggere da cross site scripting xss  -->
+                   
                 <h1 class="profile-name">
                     <?php echo htmlspecialchars($datiUtente['nome'] . ' ' . $datiUtente['cognome']); ?>
                 </h1>
 
-                 <!-- questa parte di codice mostra la email dell'utente e usa echo per stamparla su html e htmlspecialchars per proteggere da cross site scripting xss  -->
+            
                 <p class="profile-email">
                     <?php echo htmlspecialchars($datiUtente['email']); ?>
                 </p>
 
             </div>
 
-            <!-- STATISTICHE  -->
+            <!-- Statistiche  -->
             <div class="profile-stats">
                 <div class="stat">
                     <div class="stat-number"><?php echo $statisticheArticoli['totale']; ?></div>
@@ -148,61 +143,60 @@ try {
             </div>
         </div>
 
-        <!-- SEZIONE: I TUOI ANNUNCI (Quelli che stai vendendo) -->
-        <div class="section-block">
-            <h2 class="section-title">I tuoi annunci</h2>
+<!--i tuoi annunci -->
+<div class="section-block">
+    <h2 class="section-title">I tuoi annunci</h2>
 
-            <?php if (empty($mieiArticoli)): ?>
-                <div class="empty-box">Non hai ancora messo nulla in vendita.</div>
-            <?php else: ?>
-                <?php foreach ($mieiArticoli as $annuncio): ?>
-                    <div class="article-item">
-                        <div class="article-item-info">
-                            <strong><?php echo htmlspecialchars($annuncio['titolo']); ?></strong>
-                            <span class="article-item-price">€ <?php echo number_format($annuncio['prezzo'], 2, ',', '.'); ?></span>
-                            <span class="article-item-cat"><?php echo htmlspecialchars($annuncio['categoria']); ?></span>
-                        </div>
+    <?php if (empty($mieiArticoli)): ?>
+        <div class="empty-box">Non hai ancora messo nulla in vendita.</div>
+    <?php else: ?>
+        <?php foreach ($mieiArticoli as $annuncio): ?>
+            <div class="article-item">
+                <div class="article-item-info">
+                    <strong><?php echo htmlspecialchars($annuncio['titolo']); ?></strong>
+                    <!-- Prezzo stampato senza formattazione -->
+                    <span class="article-item-price">€ <?php echo $annuncio['prezzo']; ?></span>
+                    <span class="article-item-cat"><?php echo htmlspecialchars($annuncio['categoria']); ?></span>
+                </div>
+
+                <a href="deleteArticle.php?id=<?php echo $annuncio['idArticolo']; ?>"
+                   onclick="return confirm('Sei sicuro di voler eliminare definitivamente questo annuncio?')"
+                   class="btn-delete">
+                    Elimina
+                </a>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
+</div>
+
+<!--  articoli acquistati -->
+<div class="section-block">
+    <h2 class="section-title">Acquisti effettuati</h2>
+
+    <?php if (empty($mieiAcquisti)): ?>
+        <div class="empty-box">Non hai ancora acquistato nessun articolo.</div>
+    <?php else: ?>
+        <?php foreach ($mieiAcquisti as $acquisto): ?>
+            <div class="article-item">
+                <div class="article-item-info">
+                    <strong><?php echo htmlspecialchars($acquisto['titolo']); ?></strong>
+
+                    <span class="article-item-price">€ <?php echo $acquisto['prezzo']; ?></span>
+                    <span class="article-item-cat">
+
+                        <?php echo htmlspecialchars($acquisto['categoria']); ?>
+                        · Venduto da <?php echo htmlspecialchars($acquisto['venditore_nome'] . ' ' . $acquisto['venditore_cognome']); ?>
+                    </span>
+                    <span class="article-item-cat">
+
+                        Acquistato il <?php echo date('d/m/Y', strtotime($acquisto['dataAcquisto'])); ?>
                         
-                        <!-- 
-                          PULSANTE ELIMINA: 
-                          L'attributo onclick="return confirm(...)" è un trucco JavaScript velocissimo 
-                          per mostrare una finestrella di conferma prima di far cliccare il link!
-                        -->
-
-                        <a href="deleteArticle.php?id=<?php echo $annuncio['idArticolo']; ?>"
-                           onclick="return confirm('Sei sicuro di voler eliminare definitivamente questo annuncio?')"
-                           class="btn-delete">
-                            Elimina
-                        </a>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
-
-        <!-- SEZIONE: ARTICOLI ACQUISTATI -->
-        <div class="section-block">
-            <h2 class="section-title">Acquisti effettuati</h2>
-
-            <?php if (empty($mieiAcquisti)): ?>
-                <div class="empty-box">Non hai ancora acquistato nessun articolo.</div>
-            <?php else: ?>
-                <?php foreach ($mieiAcquisti as $acquisto): ?>
-                    <div class="article-item">
-                        <div class="article-item-info">
-                            <strong><?php echo htmlspecialchars($acquisto['titolo']); ?></strong>
-                            <span class="article-item-price">€ <?php echo number_format($acquisto['prezzo'], 2, ',', '.'); ?></span>
-                            <span class="article-item-cat">
-                                <?php echo htmlspecialchars($acquisto['categoria']); ?>
-                                · Venduto da <?php echo htmlspecialchars($acquisto['venditore_nome'] . ' ' . $acquisto['venditore_cognome']); ?>
-                            </span>
-                            <span class="article-item-cat">
-                                Acquistato il <?php echo date('d/m/Y', strtotime($acquisto['dataAcquisto'])); ?>
-                            </span>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
+                    </span>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
+</div>
 
     </main>
 </body>

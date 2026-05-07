@@ -1,8 +1,9 @@
 <?php
 require_once('../include/menuchoice.php');
 
-// Controllo: Se non c'è un ID valido nella query string, torniamo alla home
+// Se non c'è un ID valido nella sessione
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    //ritorno alla mainPage
     header('Location: mainPage.php');
     exit;
 }
@@ -11,7 +12,7 @@ $idUtenteProfilo = (int)$_GET['id'];
 
 $idUtenteLoggato = $_SESSION['userId'];
 
-// se utente preme sul suo profilo pubblico lo riporta sul priavato
+// se utente preme sul suo profilo pubblico lo riporta sul privato
 if ($idUtenteLoggato && $idUtenteProfilo === $idUtenteLoggato) {
     header('Location: profilePage.php');
     exit;
@@ -24,7 +25,7 @@ try {
     $istruzioneUtente->execute([':idProfilo' => $idUtenteProfilo]);
     $datiUtente = $istruzioneUtente->fetch();
 
-    // Se l'utente non esiste nel database, torna alla home
+
     if (!$datiUtente) {
         header('Location: mainPage.php');
         exit;
@@ -51,26 +52,28 @@ try {
     $istruzioneArticoli->execute([':idProfilo' => $idUtenteProfilo]);
     $articoliInVendita = $istruzioneArticoli->fetchAll();
 
-    // VARIABILI PER L'UTENTE LOGGATO (Segui e Recensioni)
+
+    // Variabili per utente loggato (Segui e Recensioni)
     $giaSegui = false;
     $giaRecensito = false;
 
-    // Se stiamo guardando la pagina e SIAMO loggati...
+
+
     if ($idUtenteLoggato) {
-        // Controlliamo se lo stiamo già seguendo
+        // Controllo se lo stiamo già seguendo
         $sqlCheckFollow = "SELECT 1 FROM Segue WHERE idFollower = :me AND idSeguito = :lui";
         $istruzioneCheckFollow = DBHandler::getPDO()->prepare($sqlCheckFollow);
         $istruzioneCheckFollow->execute([':me' => $idUtenteLoggato, ':lui' => $idUtenteProfilo]);
         $giaSegui = (bool)$istruzioneCheckFollow->fetch();
         
-        // Controlliamo se gli abbiamo già lasciato una recensione
+        // controllo solo una recensione per utente 
         $sqlGiaRecensito = "SELECT 1 FROM RecensioneUtente WHERE fkRecensoreId = :me AND fkRecensitoId = :lui";
         $istruzioneGiaRecensito = DBHandler::getPDO()->prepare($sqlGiaRecensito);
         $istruzioneGiaRecensito->execute([':me' => $idUtenteLoggato, ':lui' => $idUtenteProfilo]);
         $giaRecensito = (bool)$istruzioneGiaRecensito->fetch();
     }
 
-    // 5. Estraiamo TUTTE le recensioni ricevute da questo utente
+    //tutte recensioni ricevute da questo utente
     $sqlRecensioni = "SELECT r.valutazione, r.commento, r.dataRecensione, u.nome, u.cognome
                       FROM RecensioneUtente r
                       JOIN Utente u ON r.fkRecensoreId = u.idUtente
@@ -80,7 +83,10 @@ try {
     $istruzioneRecensioni->execute([':idProfilo' => $idUtenteProfilo]);
     $listaRecensioni = $istruzioneRecensioni->fetchAll();
 
-    // CALCOLIAMO LA MEDIA VOTI
+
+
+
+    //media voti
     $mediaVoto = 0;
     if (!empty($listaRecensioni)) {
         // array_column prende solo i numeri delle "valutazioni", array_sum li somma tutti. 
@@ -126,7 +132,7 @@ $inizialiAvatar = strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUte
 
     <main class="container">
 
-        <!-- INTESTAZIONE PROFILO -->
+        <!-- Intestazione profilo -->
         <div class="profile-card">
             <div class="profile-header">
                 <div class="profile-avatar"><?php echo $inizialiAvatar; ?></div>
@@ -153,21 +159,10 @@ $inizialiAvatar = strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUte
                 <?php endif; ?>
             </div>
 
-            <!-- Mostriamo il bottone Segui SOLO SE chi guarda è un utente registrato -->
-            <?php if ($idUtenteLoggato): ?>
-            <div class="profile-actions">
-                <button class="btn-follow <?php echo $giaSegui ? 'following' : ''; ?>"
-                        id="followBtn"
-                        onclick="toggleFollow(<?php echo $idUtenteProfilo; ?>)">
-                    <?php echo $giaSegui ? 'Stai seguendo' : '+ Segui'; ?>
-                </button>
-            </div>
-            <?php endif; ?>
-
             <p class="join-date">Membro dal <?php echo date('d/m/Y', strtotime($datiUtente['dataRegistrazione'])); ?></p>
         </div>
 
-        <!-- SEZIONE: LASCIA UNA RECENSIONE (Solo se loggati) -->
+        <!-- Recensione -->
         <?php if ($idUtenteLoggato): ?>
         <div class="section-block">
             <h2 class="section-title">Lascia una recensione</h2>
@@ -179,15 +174,20 @@ $inizialiAvatar = strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUte
             <?php if ($giaRecensito): ?>
                 <div class="empty-box">Hai già lasciato una recensione per questo utente. Le regole ne permettono una sola!</div>
             <?php else: ?>
+
                 <!-- Modulo per la recensione -->
+
                 <form action="addReview.php" method="POST" class="review-form">
-                    <!-- Campo nascosto che passa l'ID del tizio che stiamo recensendo -->
+
+                    <!-- Recupero idutente (visualizzato)-->
+
                     <input type="hidden" name="fkRecensitoId" value="<?php echo $idUtenteProfilo; ?>">
 
                     <div>
+
                         <p style="font-size:14px; color:rgba(255,255,255,0.6); margin-bottom:8px;">Valutazione *</p>
-                        <!-- Geniale l'utilizzo dei radio button al contrario per fare l'effetto riempimento delle stelline! -->
                         <div class="rating-stars">
+
                             <input type="radio" name="valutazione" id="s5" value="5" required><label for="s5">★</label>
                             <input type="radio" name="valutazione" id="s4" value="4"><label for="s4">★</label>
                             <input type="radio" name="valutazione" id="s3" value="3"><label for="s3">★</label>
@@ -196,14 +196,17 @@ $inizialiAvatar = strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUte
                         </div>
                     </div>
 
-                    <textarea name="commento" placeholder="Scrivi la tua recensione (opzionale)..."></textarea>
+                    <textarea name="commento" placeholder="Scrivi la tua recensione "></textarea>
+
                     <button type="submit">Invia recensione</button>
                 </form>
             <?php endif; ?>
         </div>
         <?php endif; ?>
 
-        <!-- SEZIONE: LISTA DELLE RECENSIONi RICEVUTE -->
+
+
+        <!-- Lista recensioni ricevute -->
         <?php if (!empty($listaRecensioni)): ?>
         <div class="section-block">
             <h2 class="section-title">Recensioni ricevute</h2>
@@ -216,7 +219,9 @@ $inizialiAvatar = strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUte
                         <span class="review-date"><?php echo date('d/m/Y', strtotime($recensione['dataRecensione'])); ?></span>
                     </div>
                     <div class="review-stars">
+
                         <!-- Disegna le stelle piene in base al voto, e le stelle vuote (5 - voto) -->
+
                         <?php echo str_repeat('★', $recensione['valutazione']) . str_repeat('☆', 5 - $recensione['valutazione']); ?>
                     </div>
                     <?php if (!empty($recensione['commento'])): ?>
@@ -227,35 +232,42 @@ $inizialiAvatar = strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUte
         </div>
         <?php endif; ?>
 
-        <!-- SEZIONE: ARTICOLI IN VENDITA DI QUESTO UTENTE -->
-        <div class="section-block">
-            <h2 class="section-title">Articoli in vendita di <?php echo htmlspecialchars($datiUtente['nome']); ?></h2>
-            <?php if (empty($articoliInVendita)): ?>
-                <div class="empty-box">Nessun articolo in vendita al momento.</div>
-            <?php else: ?>
-                <div class="product-grid">
-                    <?php foreach ($articoliInVendita as $articolo): ?>
-                        <div class="product-card" onclick="location.href='articleDetail.php?id=<?php echo $articolo['idArticolo']; ?>'">
-                            <div class="card-image-wrapper">
-                                <?php if ($articolo['immagine']): ?>
-                                    <img src="../../uploads/articoli/<?php echo htmlspecialchars($articolo['immagine']); ?>" alt="<?php echo htmlspecialchars($articolo['titolo']); ?>" class="card-image">
-                                <?php else: ?>
-                                    <div class="card-image placeholder-img">🎸</div>
-                                <?php endif; ?>
-                                <span class="stato-badge <?php echo htmlspecialchars($articolo['stato']); ?>">
-                                    <?php echo htmlspecialchars($articolo['stato']); ?>
-                                </span>
-                            </div>
-                            <div class="card-body">
-                                <div class="card-price">€ <?php echo number_format($articolo['prezzo'], 2, ',', '.'); ?></div>
-                                <div class="card-title"><?php echo htmlspecialchars($articolo['titolo']); ?></div>
-                                <div class="card-category"><?php echo htmlspecialchars(ucfirst($articolo['categoria'])); ?></div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+        
+<!-- Articoli in vendita dell'utente -->
+<div class="section-block">
+    <h2 class="section-title">Articoli di <?php echo $datiUtente['nome']; ?></h2>
+
+    <?php if (empty($articoliInVendita)): ?>
+        <div class="empty-box">Nessun articolo al momento.</div>
+    <?php else: ?>
+
+        <div class="product-grid">
+            <?php foreach ($articoliInVendita as $articolo): ?>
+                
+                <div class="product-card" onclick="location.href='articleDetail.php?id=<?php echo $articolo['idArticolo']; ?>'">
+                    
+                    <!-- Immagine dell'articolo -->
+                    <?php if ($articolo['immagine']): ?>
+                        <img src="../../uploads/articoli/<?php echo $articolo['immagine']; ?>" class="card-image">
+                    <?php else: ?>
+                        <div class="card-image placeholder-img">NESSUNA FOTO</div>
+                    <?php endif; ?>
+
+                    <!-- Info dell'articolo -->
+                    <div class="card-body">
+                        <div class="card-price">€ <?php echo $articolo['prezzo']; ?></div>
+                        <div class="card-title"><?php echo $articolo['titolo']; ?></div>
+                        <div class="card-category"><?php echo $articolo['categoria']; ?></div>
+                        <div class="stato-badge"><?php echo $articolo['stato']; ?></div>
+                    </div>
+
                 </div>
-            <?php endif; ?>
+
+            <?php endforeach; ?>
         </div>
+
+    <?php endif; ?>
+</div>
 
     </main>
 
@@ -272,7 +284,7 @@ $inizialiAvatar = strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUte
 
 
 
-    <!-- JS per gestire il pulsante SEGUI (Identico a quello nella pagina dettaglio articolo) -->
+    <!-- JS per gestire il pulsante segui collegato a followUser.php -->
     <script>
         function toggleFollow(idVenditore) {
             const btn = document.getElementById('followBtn');

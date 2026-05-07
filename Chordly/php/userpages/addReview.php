@@ -13,12 +13,13 @@ $commento          = trim($_POST['commento'] ?? '');
 $idRecensore       = $_SESSION['userId'];
 
 try {
-    // Inserimento diretto nel database
+    // Inserimento  nel database
     $sql = "INSERT INTO RecensioneUtente (fkRecensoreId, fkRecensitoId, valutazione, commento)
             VALUES (:recensoreId, :recensitoId, :valutazione, :commento)";
     
     $istruzione = DBHandler::getPDO()->prepare($sql);
     $istruzione->execute([
+        
         ':recensoreId' => $idRecensore,
         ':recensitoId' => $idUtenteRecensito,
         ':valutazione' => $valutazione,

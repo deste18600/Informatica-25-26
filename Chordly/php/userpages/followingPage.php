@@ -4,8 +4,8 @@ require_once('../include/menuchoice.php');
 $idUtenteLoggato = $_SESSION['userId'];
 
 try {
-    // Prendo la lista degli utenti che seguo
 
+    // Prendo la lista degli utenti che seguo
     $sqlSeguiti = "SELECT u.idUtente, u.nome, u.cognome, u.email 
                    FROM Segue s
                    JOIN Utente u ON s.idSeguito = u.idUtente
@@ -16,9 +16,7 @@ try {
     $istruzione->execute([':userId' => $idUtenteLoggato]);
     $utentiSeguiti = $istruzione->fetchAll();
 
-    // Per ogni utente, vado a contare quanti articoli ha
-    // Uso il simbolo & per modificare direttamente l'array $utentiSeguiti
-
+    // count degli articoli in vendita per ogni utente seguito
     foreach ($utentiSeguiti as &$utente) {
         $sqlConteggio = "SELECT COUNT(*) as totale 
                          FROM ArticoloInVendita 
@@ -82,7 +80,8 @@ try {
                             </div>
                             <div class="user-details">
                                 <h3><?php echo htmlspecialchars($utente['nome'] . ' ' . $utente['cognome']); ?></h3>
-                                <!-- Mostriamo il conteggio calcolato dalla Query -->
+
+                                <!--  conteggio calcolato dalla Query  $sqlConteggio -->
                                 <p><?php echo $utente['numArticoli']; ?> articoli in vendita</p>
                             </div>
                         </div>
@@ -107,7 +106,7 @@ try {
 
 
  
-    <!-- JS PER SMETTERE DI SEGUIRE -->
+    <!-- JS per smettere di seguire -->
     <script>
         function unfollowUser(idDaSmettereDiSeguire) {
             if (confirm('Sei sicuro di voler smettere di seguire questo utente?')) {
@@ -124,7 +123,7 @@ try {
                 .then(dati => {
                     if (dati.success) {
 
-                        // Se ha avuto successo, ricarichiamo la pagina per aggiornare la lista visiva!
+                        //ricarica pagine
                         location.reload();
                     } else {
                         alert('Errore: ' + dati.error);

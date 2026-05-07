@@ -1,16 +1,14 @@
 <?php
 require_once('../include/menuchoice.php');
 
-//controllo se id manca nell'indirizzo url e se è un numero
+//controllo se id (del articolo) manca e se è un numero
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    //se no torna alla mainaPage
     header('Location: mainPage.php');
     exit;
 }
 
-//salvo sessione utente
 $idUtenteLoggato = $_SESSION['userId'];
-//salvo id articolo da url (quello che ho controllato prima)
+
 $idArticolo = (int)$_GET['id']; 
 
 try {
@@ -28,14 +26,13 @@ try {
 
 
     if (!$articolo) {
-        //se non trovato torna alla mainPage
         header('Location: mainPage.php');
         exit;
     }
 
 
    //l'utente segue già il venditore?
-    //controllo se la riga(uso 1 per guardare la riga in generale) dove idFollower = me e idSeguito = lui esiste nella tabella Segue
+  //controllo la riga(uso 1 per guardare la riga in generale) dove idFollower = me e idSeguito = lui esiste nella tabella Segue
 
     $sqlSeguito = "SELECT 1 FROM Segue WHERE idFollower = :me AND idSeguito = :lui";
 
@@ -43,13 +40,13 @@ try {
 
     $istruzioneS->execute([':me' => $idUtenteLoggato, ':lui' => $articolo['vendId']]);
 
-    // Trasformazione risultato in un valore Vero/Falso (
+    // Trasformazione risultato in un valore Vero/Falso 
 
     $giaSegui = (bool)$istruzioneS->fetch(); 
 
 
 
-    // 5. Quanti follower ha questo venditore in totale?
+    // Numero di follower del venditore
 
     $sqlFollower = "SELECT COUNT(*) as tot FROM Segue WHERE idSeguito = :lui";
 
@@ -62,24 +59,26 @@ try {
 
 
 
-    // 6. Prendiamo gli ultimi 4 articoli messi in vendita da questo stesso utente (per consigliarli in fondo alla pagina)
+    //Articoli consigliati
+    $sqlArticoli = "SELECT idArticolo, titolo, prezzo, immagine
+               FROM ArticoloInVendita
+               WHERE fkUtenteId = :idVenditore 
+               AND idArticolo != :idArticoloCorrente 
+               AND disponibilita = TRUE
+               ORDER BY dataPost DESC";
 
-    $sqlAltri = "SELECT idArticolo, titolo, prezzo, immagine
-                 FROM ArticoloInVendita
-                 WHERE fkUtenteId = :uid AND idArticolo != :aid AND disponibilita = TRUE
-                 ORDER BY dataPost DESC LIMIT 4";
+    $istruzioneA = DBHandler::getPDO()->prepare($sqlArticoli);
 
+    $istruzioneA->execute([
+        ':idVenditore'       => $articolo['vendId'], 
+        ':idArticoloCorrente' => $idArticolo
+    ]);
 
-    $istruzioneA = DBHandler::getPDO()->prepare($sqlAltri);
-
-    // :uid è il venditore, :aid è l'articolo attuale (che escludiamo con != per non mostrare il doppio)
-
-    $istruzioneA->execute([':uid' => $articolo['vendId'], ':aid' => $idArticolo]);
     $altriArticoli = $istruzioneA->fetchAll();
 
-} catch (PDOException $e) {
+    } catch (PDOException $e) {
     die("Errore di connessione: " . $e->getMessage());
-}
+    }
 
 
 
@@ -87,7 +86,7 @@ try {
 
 
 
-// Generazione delle inziali del venditore (es. da Mario Rossi a MR) per l'avatar
+// Generazione iniziali avatar
 $inizialiVenditore = strtoupper(substr($articolo['nome'], 0, 1) . substr($articolo['cognome'], 0, 1));
 
 
@@ -118,82 +117,75 @@ $imgPath = $articolo['immagine'] ? '../../uploads/articoli/' . htmlspecialchars(
         <a href="mainPage.php" class="btn-back">← Torna alla home</a>
     </nav>
 
-    <main class="detail-container">
+   <main class="detail-container">
 
-        <!-- COLONNA SINISTRA: IMMAGINE -->
+    <!-- COLONNA SINISTRA: IMMAGINE -->
+    <div class="image-col">
+        
+        <?php if ($imgPath): ?>
+            <!-- Mostro l'immagine così com'è -->
+            <img src="<?php echo $imgPath; ?>" class="main-image">
+        <?php else: ?>
+            <!-- Rettangolo grigio se manca la foto -->
+            <div class="placeholder-img">Nessuna foto</div>
+        <?php endif; ?>
 
-        <div class="image-col">
-            
-            <div class="main-image-wrapper" id="mainImgWrapper">
-
-                <?php if ($imgPath): ?>
-
-                    <!-- L'immagine viene mostrata -->
-                    <img src="<?php echo $imgPath; ?>" alt="<?php echo htmlspecialchars($articolo['titolo']); ?>" class="main-image" id="mainImg">
-                <?php else: ?>
-                    <!-- Se l'immagine manca, mostriamo il placeholder -->
-                    <div class="placeholder-img"></div>
-                <?php endif; ?>
-            </div>
-
-            <!-- Badge dello stato -->
-            <span class="stato-badge <?php echo $articolo['stato']; ?>">
-                <?php echo ucfirst($articolo['stato']); ?>
-            </span>
-
+        <!-- Badge dello stato (senza ucfirst) -->
+        <div class="stato-badge">
+            Stato: <?php echo $articolo['stato']; ?>
         </div>
 
-        <!-- COLONNA DESTRA: DETTAGLI E PULSANTI -->
-        <div class="info-col">
-            <div class="categoria-label"><?php echo ucfirst($articolo['categoria']); ?></div>
-            <h1 class="titolo"><?php echo htmlspecialchars($articolo['titolo']); ?></h1>
-            <div class="prezzo">€ <?php echo number_format($articolo['prezzo'], 2, ',', '.'); ?></div>
+    </div>
 
-            <?php if (!empty($articolo['descrizione'])): ?>
-                <div class="descrizione">
-                    <h3>Descrizione</h3>
-                    <!-- nl2br converte gli invii "a capo" fatti dall'utente nel testo in <br> html -->
-                    <p><?php echo nl2br(htmlspecialchars($articolo['descrizione'])); ?></p>
+    <!-- COLONNA DESTRA: INFO E BOTTONI -->
+    <div class="info-col">
+        
+        <!-- Titolo -->
+        <div class="categoria-label"><?php echo $articolo['categoria']; ?></div>
+        <h1 class="titolo"><?php echo $articolo['titolo']; ?></h1>
+        
+        <!-- Prezzo  -->
+        <div class="prezzo">€ <?php echo $articolo['prezzo']; ?></div>
+
+        <!-- Descrizione  -->
+        <?php if (!empty($articolo['descrizione'])): ?>
+            <div class="descrizione">
+                <h3>Descrizione</h3>
+                <p><?php echo nl2br($articolo['descrizione']); ?></p>
+            </div>
+        <?php endif; ?>
+
+        <!-- SCHEDA VENDITORE -->
+        <div class="seller-card">
+            <div class="seller-avatar"><?php echo $inizialiVenditore; ?></div>
+            <div class="seller-name">
+                <?php echo $articolo['nome'] . ' ' . $articolo['cognome']; ?>
+            </div>
+
+
+            <!-- Azioni se l'utente è un altro -->
+            <?php if (!$isMioAnnuncio): ?>
+             
+                <div class="seller-actions">
+                    
+                    <button class="btn-follow <?php echo $giaSegui ? 'following' : ''; ?>" id="followBtn" onclick="toggleFollow(<?php echo $articolo['vendId']; ?>)">
+                        <?php echo $giaSegui ? 'Seguito' : '+ Segui'; ?>
+                    </button>
+
+                    <button class="btn-buy" onclick="buyArticle(<?php echo $idArticolo; ?>)">
+                        Acquista
+                    </button>
+                    
                 </div>
+            <?php else: ?>
+                <div class="my-listing-badge">Questo è il tuo annuncio</div>
             <?php endif; ?>
-
-            <!-- SCHEDA DEL VENDITORE -->
-            <div class="seller-card">
-                <div class="seller-info">
-                    <div class="seller-avatar"><?php echo $inizialiVenditore; ?></div>
-                    <div>
-                        <div class="seller-name">
-                            <?php echo htmlspecialchars($articolo['nome'] . ' ' . $articolo['cognome']); ?>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Se NON è il mio annuncio, tasti Segui e Compra -->
-                <?php if (!$isMioAnnuncio): ?>
-                    <div class="seller-actions">
-                        
-                        <!-- Pulsante per Seguire -->
-                        <button class="btn-follow <?php echo $giaSegui ? 'following' : ''; ?>" id="followBtn" onclick="toggleFollow(<?php echo $articolo['vendId']; ?>)">
-                            <?php echo $giaSegui ? 'Stai seguendo' : '+ Segui'; ?>
-                        </button>
-
-                        <!-- Pulsante per Acquistare (usa Javascript per chiamare buyArticle.php) -->
-                        <?php if ($articolo['disponibilita']): ?>
-                        <button class="btn-buy" id="buyBtn" onclick="buyArticle(<?php echo $idArticolo; ?>)">
-                            Acquista
-                        </button>
-                        <?php endif; ?>
-                        
-                    </div>
-
-
-                <!-- Se è il MIO annuncio-->
-                <?php else: ?>
-                    <div class="my-listing-badge">Il tuo annuncio</div>
-                <?php endif; ?>
-            </div>
         </div>
-    </main>
+
+    </div>
+</main>
+
+
 
 
 

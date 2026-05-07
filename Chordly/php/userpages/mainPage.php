@@ -3,47 +3,40 @@ require_once('../include/menuchoice.php');
  
 $idUtenteLoggato = $_SESSION['userId'];
 
-// LETTURA DEI FILTRI DALL'URL (Se non ci sono, uso valori predefiniti)
-$filtroCategoria = isset($_GET['categoria']) ? $_GET['categoria'] : 'tutti';
-$filtroStato     = isset($_GET['stato']) ? $_GET['stato'] : '';
-$filtroPrezzo    = isset($_GET['prezzo']) ? $_GET['prezzo'] : '';
-$testoCercato    = isset($_GET['ricerca']) ? $_GET['ricerca'] : '';
-
+// LETTURA DEI FILTRI (Se non ci sono, uso valori predefiniti)
+$filtroCategoria = $_GET['categoria'] ?? 'tutti';
+$filtroStato     = $_GET['stato']     ?? '';
+$filtroPrezzo    = $_GET['prezzo']    ?? '';
+$testoCercato    = $_GET['ricerca']   ?? '';
 try {
 
-    // Inizia a scrivere la query SQL base per selezionare gli articoli e i dati del venditore (JOIN)
+    //seleziono tutti gli articoli e dati venditori
     $sql = "SELECT a.*, u.nome, u.cognome, u.email 
             FROM ArticoloInVendita a
             JOIN Utente u ON a.fkUtenteId = u.idUtente
             WHERE a.disponibilita = TRUE";
     
     $parametri = []; 
-    // Array per i prepared statements
+ 
 
-    // ASSEMBLAGGIO DINAMICO DELLA QUERY
+    // Assemblaggio delle query
 
+    //categoria
     if ($filtroCategoria !== 'tutti') {
-        // .= unisce la mia stringa letta in $filtroCategoria alla query in modo da filtrare per quella specifica categoria
         $sql .= " AND a.categoria = :categoria";
-
-        // Aggiungo il parametro per il prepared statement (il valore di $filtroCategoria) 
         $parametri[':categoria'] = $filtroCategoria;
     }
 
-    // prima controllo se esite uno stato e non è più vuoto
+    //stato
     if ($filtroStato !== '') {
-        //come sopra concateno la stringa alla query
         $sql .= " AND a.stato = :stato";
-        //aggiungo il parametro per il prepared statement
         $parametri[':stato'] = $filtroStato;
     }
 
-    // Se l'utente ha scritto qualcosa nella barra ($testoCercato)
+    //barra di ricerca 
     if ($testoCercato !== '') {
         $sql .= " AND (a.titolo LIKE :ricerca OR a.categoria LIKE :ricerca)";
 
-        //prepared statement, mettendo % prima e dopo il testo cercato per far capire al database che può esserci qualsiasi cosa prima o dopo
-        // % significa qualsiasi sequenza di caratteri e il . un +
         $parametri[':ricerca'] = '%' . $testoCercato . '%'; 
     }
 
@@ -58,16 +51,20 @@ try {
     }
 
    
-    //variabile $sql che abbiamo costruito dinamicamente e l'array $parametri per eseguire la query in modo sicuro con i prepared statements
+    
     $istruzione = DBHandler::getPDO()->prepare($sql);
     $istruzione->execute($parametri); 
     
-    // Pesca i risultati già filtrati alla perfezione dal database
     $articoli = $istruzione->fetchAll();
 
 } catch (PDOException $e) {
     die("Errore nel recupero degli articoli: " . $e->getMessage());
 }
+
+
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -156,51 +153,69 @@ try {
         </div>
     </main>
 
+
+
+
+
+
+    
+ 
     <script>
-        // Leggiamo dall'indirizzo web cosa ha scelto l'utente
-        const urlParams = new URLSearchParams(window.location.search);
-        let filtroCategoriaSelezionata = urlParams.get('categoria') || 'tutti';
+    // Capire quale categoria è attiva guardando l'indirizzo (URL)
+    const parametriIndirizzo = new URLSearchParams(window.location.search);
+    const categoriaAttiva = parametriIndirizzo.get('categoria') || 'tutti';
+
+    // Quando la pagina è pronta, colora il bottone della categoria selezionata
+    document.addEventListener('DOMContentLoaded', function() {
+        // Prendi tutti i bottoni delle categorie
+        const bottoni = document.querySelectorAll('.chip:not(.select-chip)');
         
-        // Appena la pagina finisce di caricare, coloriamo di giallo (active) il bottone giusto
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.chip:not(.select-chip)').forEach(bottone => {
-                const testoBottone = bottone.textContent.toLowerCase();
-                if (testoBottone === filtroCategoriaSelezionata || (filtroCategoriaSelezionata === 'tutti' && testoBottone === 'tutto')) {
-                    bottone.classList.add('active');
-                } else {
-                    bottone.classList.remove('active');
-                }
-            });
+        bottoni.forEach(function(bottone) {
+            const testo = bottone.textContent.toLowerCase();
+            
+            // Se il testo del bottone coincide con la categoria nell'URL, coloralo
+            if (testo === categoriaAttiva || (categoriaAttiva === 'tutti' && testo === 'tutto')) {
+                bottone.classList.add('active');
+            } else {
+                bottone.classList.remove('active');
+            }
         });
+    });
 
-        // Quando clicchi su un bottone delle categorie...
-        function filterCategory(bottoneCliccato, categoriaScelta) {
-            filtroCategoriaSelezionata = categoriaScelta;
-            applyFilters();
-        }
+    // Funzione che raccoglie tutti i filtri e ricarica la pagina
+    function applyFilters() {
+        // Prendi i valori attuali dai menu a tendina e dalla barra di ricerca
+        const stato = document.getElementById('statoFilter').value;
+        const prezzo = document.getElementById('prezzoFilter').value;
+        const ricerca = document.getElementById('searchInput').value;
+        
+        // Costruisci l'indirizzo con tutti i pezzi
+        // Usiamo categoriaAttiva (salvata all'inizio) per non perderla
+        let nuovoIndirizzo = "mainPage.php?categoria=" + categoriaAttiva;
+        nuovoIndirizzo += "&stato=" + stato;
+        nuovoIndirizzo += "&prezzo=" + prezzo;
+        nuovoIndirizzo += "&ricerca=" + encodeURIComponent(ricerca);
 
-        // QUESTA È LA FUNZIONE CHE RICARICA LA PAGINA INVIANDO I FILTRI AL PHP
-        function applyFilters() {
-            const stato = document.getElementById('statoFilter').value;
-            const prezzo = document.getElementById('prezzoFilter').value;
-            // encodeURIComponent "impacchetta" le parole per metterle sicure nell'URL (es. gestisce gli spazi)
-            const ricerca = encodeURIComponent(document.getElementById('searchInput').value);
-            
-            // Costruiamo il nuovo URL della pagina
-            const nuovoUrl = `mainPage.php?categoria=${filtroCategoriaSelezionata}&stato=${stato}&prezzo=${prezzo}&ricerca=${ricerca}`;
-            
-            // Facciamo fisicamente il salto verso il nuovo URL
-            window.location.href = nuovoUrl;
-        }
+        // Vai all'indirizzo creato
+        window.location.href = nuovoIndirizzo;
+    }
 
-        // Se scrivi nella barra di ricerca, il filtro parte quando premi Invio (o clicchi fuori)
-        document.getElementById('searchInput').addEventListener('change', applyFilters);
+    // Quando clicchi su una categoria, cambia la variabile e aggiorna tutto
+    function filterCategory(elemento, nomeCategoria) {
+        // Questa funzione viene chiamata dai bottoni nell'HTML
+        window.location.href = "mainPage.php?categoria=" + nomeCategoria;
+    }
 
-        // Apre il dettaglio dell'articolo
-        function openArticle(idArticolo) {
-            window.location.href = 'articleDetail.php?id=' + idArticolo;
-        }
-    </script>
+    // Se scrivi nella ricerca e premi Invio, attiva i filtri
+    document.getElementById('searchInput').addEventListener('change', applyFilters);
+
+    // Funzione per aprire la pagina del dettaglio di un articolo
+function openArticle(idArticolo) {
+    window.location.href = 'articleDetail.php?id=' + idArticolo;
+}
+
+</script>
+    
 
 </body>
 </html>
