@@ -1,18 +1,9 @@
-/* ===== 1. RESET BASE ===== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box; /* Calcola bordi e padding all'interno della larghezza totale */
-    font-family: 'DM Sans', sans-serif;
-}
-
 body {
-    background: #0a0a0a; /* Sfondo scuro principale */
-    color: #e5e1d8;      /* Testo chiaro leggibile */
+    background: #0a0a0a; 
+    color: #e5e1d8;      
     min-height: 100vh;
 }
 
-/* ===== 2. NAVBAR ===== */
 .navbar {
     display: flex;
     align-items: center;
@@ -46,7 +37,7 @@ body {
     border-color: #c5a059;
 }
 
-/* ===== 3. LAYOUT PRINCIPALE (Contenitore del Profilo) ===== */
+/* LAYOUT PRINCIPALE*/
 .container {
     max-width: 600px;
     margin: 40px auto; /* Centra il contenitore orizzontalmente */
@@ -141,10 +132,10 @@ body {
     color: #c5a059;
     margin-bottom: 20px;
     padding-left: 12px;
-    border-left: 3px solid #c5a059; /* Decoro laterale molto elegante */
+    border-left: 3px solid #c5a059; 
 }
 
-/* ===== 7. MODULO RECENSIONI E TRUCCO DELLE STELLE ===== */
+/* RECENSIONI E STELLE ===== */
 .review-form {
     background: #1a1a1a;
     border: 1px solid #333;
@@ -155,7 +146,7 @@ body {
     gap: 16px;
 }
 
-/* IL TRUCCO DELLE STELLE CSS */
+/* STELLE CSS */
 .rating-stars {
     display: flex;
     flex-direction: row-reverse; /* Inverte l'ordine: da destra a sinistra */
@@ -183,7 +174,7 @@ body {
     color: #c5a059;
 }
 
-/* ===== 8. STILE TEXTAREA E BOTTONE RECENSIONE ===== */
+/* TEXTAREA E BOTTONE RECENSIONE */
 .review-form textarea {
     padding: 12px;
     border-radius: 8px;
@@ -204,10 +195,10 @@ body {
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    align-self: flex-start; /* Evita che il bottone prenda tutta la larghezza */
+    align-self: flex-start; 
 }
 
-/* ===== 9. LISTA RECENSIONI E ARTICOLI IN VENDITA ===== */
+/*  LISTA RECENSIONI E ARTICOLI IN VENDITA */
 .review-item, .article-item {
     background: #1a1a1a;
     border: 1px solid #333;
@@ -224,4 +215,91 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Colonne automatiche larghe minimo 140px */
     gap: 16px;
+}
+
+/* CARD ARTICOLI */
+.product-card {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}.product-card:hover { 
+    border-color: #c5a059; 
+}
+
+.card-image-wrapper { 
+    position: relative; 
+    width: 100%; 
+    aspect-ratio: 3 / 4; 
+    background: #0d0d0d; 
+}
+
+.card-image { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+}
+
+.placeholder-img { 
+    width: 100%; 
+    height: 100%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 48px; 
+    background: #111; 
+}
+
+.stato-badge { 
+    position: absolute; 
+    top: 8px; 
+    left: 8px; 
+    font-size: 10px; 
+    font-weight: bold; 
+    padding: 3px 9px; 
+    border-radius: 10px; 
+    text-transform: uppercase; 
+}
+
+.stato-badge.ottimo { 
+    color: #c5a059; 
+    border: 1px solid #c5a059; 
+    background: rgba(10, 10, 10, 0.8); 
+}
+
+.stato-badge.buono { 
+    color: #fff; 
+    border: 1px solid #fff; 
+    background: rgba(10, 10, 10, 0.8); 
+}
+
+.stato-badge.difettato { 
+    color: #cc6666; 
+    border: 1px solid #cc6666; 
+    background: rgba(10, 10, 10, 0.8); 
+}
+
+.card-body { 
+    padding: 12px; 
+}
+
+.card-price { 
+    color: #c5a059; 
+    font-weight: bold; 
+    font-size: 16px; 
+    margin-bottom: 4px; 
+}
+
+.card-title { 
+    color: #e5e1d8; 
+    font-size: 13px; 
+    margin-bottom: 3px; 
+}
+
+.card-category { 
+    color: #888; 
+    font-size: 11px; 
+    text-transform: uppercase; 
 }

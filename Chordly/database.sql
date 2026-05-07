@@ -1,8 +1,8 @@
--- Creazione del database (se non esiste già)
+-- Active: 1761637034800@@127.0.0.1@3306@chordlydatabase
+
 CREATE DATABASE IF NOT EXISTS ChordlyDatabase;
 USE ChordlyDatabase;
 
--- 1. TABELLA UTENTE
 CREATE TABLE Utente (
     idUtente INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
@@ -13,7 +13,6 @@ CREATE TABLE Utente (
     dataRegistrazione TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. TABELLA ARTICOLI IN VENDITA
 CREATE TABLE ArticoloInVendita (
     idArticolo INT AUTO_INCREMENT PRIMARY KEY,
     fkUtenteId INT NOT NULL, 
@@ -30,7 +29,6 @@ CREATE TABLE ArticoloInVendita (
         ON UPDATE CASCADE     
 );
 
--- 3. TABELLA SEGUITI (Follower)
 CREATE TABLE Segue (
     idFollower INT NOT NULL,
     idSeguito INT NOT NULL,
@@ -39,7 +37,6 @@ CREATE TABLE Segue (
     FOREIGN KEY (idSeguito) REFERENCES Utente(idUtente) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- 4. TABELLA COMMENTI (Che avevi già impostato benissimo)
 CREATE TABLE Commenti (
     idCommento INT AUTO_INCREMENT PRIMARY KEY,
     idUtente INT, 
@@ -54,7 +51,6 @@ CREATE TABLE Commenti (
         ON UPDATE CASCADE
 );
 
--- 5. TABELLA ACQUISTI (Nuova, serve per buyArticle.php e per il Profilo)
 CREATE TABLE Acquisti (
     idAcquisto INT AUTO_INCREMENT PRIMARY KEY,
     fkAcquirenteId INT NOT NULL,
@@ -64,7 +60,6 @@ CREATE TABLE Acquisti (
     FOREIGN KEY (fkArticoloId) REFERENCES ArticoloInVendita(idArticolo) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- 6. TABELLA RECENSIONI (Sostituisce "Merita", allineata ad addReview.php)
 CREATE TABLE RecensioneUtente (
     idRecensione INT AUTO_INCREMENT PRIMARY KEY,
     fkRecensoreId INT NOT NULL,  
@@ -72,8 +67,7 @@ CREATE TABLE RecensioneUtente (
     valutazione TINYINT NOT NULL CHECK (valutazione BETWEEN 1 AND 5),
     commento TEXT,
     dataRecensione TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY unica_recensione (fkRecensoreId, fkRecensitoId), -- Permette 1 sola recensione per coppia di utenti
-    FOREIGN KEY (fkRecensoreId) REFERENCES Utente(idUtente) 
+    UNIQUE KEY unica_recensione (fkRecensoreId, fkRecensitoId),
         ON DELETE CASCADE 
         ON UPDATE CASCADE,
     FOREIGN KEY (fkRecensitoId) REFERENCES Utente(idUtente) 

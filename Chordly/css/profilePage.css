@@ -1,18 +1,10 @@
-/* ===== 1. RESET E BASE ===== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'DM Sans', sans-serif;
-}
-
 body {
-    background: #0a0a0a; /* Sfondo scuro principale */
+    background: #0a0a0a;
     color: #e5e1d8;
     min-height: 100vh;
 }
 
-/* ===== 2. NAVBAR ===== */
+
 .navbar {
     display: flex;
     align-items: center;
@@ -20,7 +12,7 @@ body {
     padding: 0 28px;
     height: 60px;
     background: #111;
-    border-bottom: 2px solid #c5a059; /* Linea d'accento oro */
+    border-bottom: 2px solid #c5a059; 
 }
 
 .nav-logo {
@@ -46,14 +38,14 @@ body {
     border-color: #c5a059;
 }
 
-/* ===== 3. LAYOUT PRINCIPALE ===== */
+
 .container {
-    max-width: 600px; /* Misura perfetta per contenere un profilo senza disperdere i dati */
-    margin: 40px auto; /* Centra il blocco orizzontalmente */
+    max-width: 600px; 
+    margin: 40px auto; 
     padding: 0 28px;
 }
 
-/* Contenitore grigio scuro che racchiude tutte le info dell'utente */
+
 .profile-card {
     background: #1a1a1a; 
     border: 1px solid #333;
@@ -61,17 +53,17 @@ body {
     padding: 40px;
 }
 
-/* ===== 4. INTESTAZIONE E STATISTICHE ===== */
+
 .profile-header {
     text-align: center;
     margin-bottom: 40px;
 }
 
-/* Il cerchio dell'Avatar */
+/* Avatar utente */
 .profile-avatar {
     width: 80px;
     height: 80px;
-    border-radius: 50%; /* Il segreto per fare un cerchio perfetto */
+    border-radius: 50%; /*  cerchio perfetto avatar */
     background: rgba(197, 160, 89, 0.2);
     color: #c5a059;
     font-size: 32px;
@@ -107,13 +99,13 @@ body {
 .stat-number { font-size: 24px; font-weight: bold; color: #c5a059; margin-bottom: 8px; }
 .stat-label { font-size: 12px; color: #888; text-transform: uppercase; }
 
-/* ===== 5. PULSANTI PROFILO PRIVATO ===== */
+
 .profile-actions {
     display: flex;
-    gap: 12px; /* Spazio tra il bottone "Vendi" e "Modifica Profilo" */
+    gap: 12px; 
+    
 }
 
-/* Classe base per entrambi i bottoni */
 .btn-action {
     flex: 1; /* Fa sì che i due bottoni siano sempre larghi uguali, occupando metà riga ciascuno */
     padding: 12px 24px;
@@ -127,29 +119,12 @@ body {
     text-align: center;
 }
 
-/* Bottone di azione principale (Vendi) */
 .btn-sell {
     background: #c5a059;
     color: #000;
 }
-.btn-sell:hover { background: #d4b06a; }
 
-/* Bottone secondario (Modifica) */
-.btn-edit {
-    background: transparent;
-    border: 1px solid #555;
-    color: #fff;
-}
-.btn-edit:hover { border-color: #c5a059; color: #c5a059; }
-
-.join-date {
-    text-align: center;
-    font-size: 12px;
-    color: #555;
-    margin-top: 32px;
-}
-
-/* ===== 6. LISTA DEI PROPRI ARTICOLI IN VENDITA ===== */
+/* LISTA DEI PROPRI ARTICOLI IN VENDITA */
 .section-block { margin-top: 40px; }
 
 .section-title {
@@ -186,10 +161,10 @@ body {
     transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-/* Quando l'utente passa il mouse sopra l'articolo, questo scivola leggermente a destra */
+
 .article-item:hover {
     border-color: #c5a059;
-    transform: translateX(6px); /* Effetto "scivolamento" orizzontale */
+    transform: translateX(6px); /* Effetto "scivolamento" orizzontale articolo */
 }
 
 .article-item-info {
@@ -202,19 +177,17 @@ body {
 .article-item-price { color: #c5a059; font-weight: bold; font-size: 15px; }
 .article-item-cat { font-size: 11px; text-transform: uppercase; color: #888; }
 
-/* ===== 7. BOTTONE ELIMINA (Azione Distruttiva) ===== */
+
 .btn-delete {
-    color: #ff4d4d; /* Rosso per segnalare pericolo/cancellazione */
+    color: #ff4d4d;
     text-decoration: none;
     font-size: 13px;
     padding: 6px 12px;
-    border: 1px solid rgba(255, 77, 77, 0.3);
+    border: 1px solid  #ff4d4d;
     border-radius: 6px;
-    transition: all 0.2s ease;
-    background: transparent;
 }
 
-/* Al passaggio del mouse si riempie di rosso per enfatizzare l'azione */
+
 .btn-delete:hover {
     background: #ff4d4d;
     color: white;

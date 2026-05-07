@@ -141,22 +141,15 @@ try {
     </div>
 
     <!-- CONTENITORE PRINCIPALE DEGLI ARTICOLI -->
+     
     <main class="main-content">
-
-        <div class="product-grid" id="productGrid">
-            
-            <?php if (empty($articoli)): ?>
-
-                <!-- Se il database non ha trovato nulla con questi filtri -->
-                <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.4);">
-                    <p>Nessun articolo trovato con i filtri selezionati. </p>
-                </div>
-
-            <?php else: ?>
-
-                <!-- Se ci sono articoli, li stampiamo in griglia -->
-
-                <?php foreach ($articoli as $articolo): ?>
+<div class="product-grid" id="productGrid"><?php 
+            if (empty($articoli)): 
+        ?>
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.4);">
+                <p>Nessun articolo trovato con i filtri selezionati.</p>
+            </div>
+        <?php else: foreach ($articoli as $articolo): ?>
                     
                     <div class="product-card" onclick="openArticle(<?php echo $articolo['idArticolo']; ?>)">
 

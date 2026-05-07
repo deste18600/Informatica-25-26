@@ -1,26 +1,17 @@
-/* ===== 1. RESET E BASE ===== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box; /* Previene problemi di larghezza con padding e bordi */
-    font-family: 'DM Sans', sans-serif; /* Allineato al font del resto del sito */
-}
-
 body {
-    background: #0a0a0a; /* Sfondo scuro pulito, niente immagini che distraggono mentre si compila il form */
+    background: #0a0a0a;
     color: #e5e1d8;
     min-height: 100vh;
 }
 
-/* ===== 2. NAVBAR ===== */
 .navbar {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Logo a sinistra, Tasto "Indietro" a destra */
+    justify-content: space-between; 
     padding: 0 28px;
     height: 60px;
     background: #111;
-    border-bottom: 2px solid #c5a059; /* Linea d'accento dorata */
+    border-bottom: 2px solid #c5a059; 
 }
 
 .nav-logo {
@@ -43,7 +34,6 @@ body {
 
 .btn-back:hover { color: #c5a059; border-color: #c5a059; }
 
-/* ===== 3. LAYOUT DEL FORM ===== */
 .add-article-container {
     max-width: 800px;
     margin: 40px auto; /* Centra il modulo nello schermo */
@@ -51,7 +41,7 @@ body {
 }
 
 .form-wrapper {
-    background: #1a1a1a; /* Grigio scuro coerente con le card delle altre pagine */
+    background: #1a1a1a; 
     border: 1px solid #333;
     border-radius: 16px;
     padding: 40px;
@@ -60,20 +50,20 @@ body {
 h1 { font-size: 28px; color: white; margin-bottom: 8px; }
 .form-subtitle { font-size: 14px; color: #888; margin-bottom: 28px; }
 
-/* ===== 4. CAMPI E GRIGLIE (Il modulo vero e proprio) ===== */
+
 .form-articolo {
     display: flex;
     flex-direction: column;
-    gap: 24px; /* Spazio verticale tra i vari blocchi del form */
+    gap: 24px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px; /* Spazio tra l'etichetta (label) e il campo in cui scrivere */
+    gap: 8px; 
 }
 
-/* TRUCCO: Affianca Categoria, Stato e Prezzo sulla stessa riga */
+/* Affianca Categoria, Stato e Prezzo sulla stessa riga */
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr; /* Divide lo spazio in 3 colonne uguali */
@@ -93,42 +83,34 @@ input, select, textarea {
     transition: border-color 0.2s ease, background 0.2s ease;
 }
 
-/* Quando l'utente clicca su un campo per scrivere, si illumina d'oro */
-input:focus, select:focus, textarea:focus {
-    border-color: #c5a059;
-    background: #111;
-}
-
 textarea {
     resize: vertical; /* Permette di allungare l'area di testo solo verso il basso */
     min-height: 120px;
 }
 
-/* ===== 5. AREA UPLOAD FOTO E ANTEPRIMA ===== */
+/* AREA FOTO E ANTEPRIMA*/
 .upload-area {
-    border: 2px dashed #555; /* Bordo tratteggiato che fa capire che si può "trascinare" roba */
+    border: 2px dashed #555; /* Bordo tratteggiato */
     border-radius: 12px;
     padding: 30px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    position: relative; /* Serve ad "ancorare" l'input file invisibile */
+    position: relative;
     background: #222;
 }
 
 .upload-area:hover { border-color: #c5a059; }
 
-/* IL TRUCCO DELL'INPUT INVISIBILE */
 .upload-area input[type="file"] {
     position: absolute;
-    inset: 0; /* Si spalma su tutto il genitore (top, bottom, left, right: 0) */
-    opacity: 0; /* Lo rende completamente invisibile ma ancora cliccabile! */
+    inset: 0; 
+    opacity: 0; 
     cursor: pointer;
 }
 
 .upload-area p { color: #888; font-size: 13px; margin: 0; }
 
-/* Immagine di anteprima (inizialmente nascosta da Javascript) */
 #preview-img {
     width: 100%;
     max-height: 250px;
@@ -139,7 +121,6 @@ textarea {
     border: 1px solid #333;
 }
 
-/* ===== 6. BOTTONI DI AZIONE ===== */
 .form-actions {
     display: flex;
     gap: 12px;
@@ -147,7 +128,7 @@ textarea {
 }
 
 .btn-submit, .btn-cancel {
-    flex: 1; /* Larghi uguali (50% e 50%) */
+    flex: 1; /* Larghi uguali */
     padding: 12px 24px;
     border-radius: 8px;
     font-weight: bold;
@@ -164,13 +145,13 @@ textarea {
 .btn-cancel { background: transparent; border: 1px solid #555; color: #fff; }
 .btn-cancel:hover { border-color: #c5a059; color: #c5a059; }
 
-/* ===== 7. ALERT DI FEEDBACK (Errori o Successo) ===== */
+/* (Errori o Successo)  */
 .alert {
     padding: 12px 16px;
     border-radius: 8px;
     margin-bottom: 24px;
     font-size: 14px;
-    border-left: 4px solid; /* Linea colorata laterale elegante */
+    border-left: 4px solid; 
 }
 
 .alert-error {
@@ -184,15 +165,10 @@ textarea {
     border-color: #5cc877;
     color: #5cc877;
 }
-/* ===== 8. RIMOZIONE FRECCETTE DA INPUT NUMBER ===== */
-/* Per Chrome, Safari, Edge e Opera */
+
+/*rimozione freccie da input number*/
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
-}
-
-/* Per Firefox */
-input[type="number"] {
-    -moz-appearance: textfield;
 }
