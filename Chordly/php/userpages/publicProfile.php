@@ -286,6 +286,7 @@ $inizialiAvatar = strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUte
 
     <!-- JS per gestire il pulsante segui collegato a followUser.php -->
     <script>
+
         function toggleFollow(idVenditore) {
             const btn = document.getElementById('followBtn');
             const staGiaSeguendo = btn.classList.contains('following');
@@ -295,6 +296,7 @@ $inizialiAvatar = strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUte
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: 'idSeguito=' + idVenditore + '&action=' + (staGiaSeguendo ? 'unfollow' : 'follow')
             })
+            
             .then(risposta => risposta.json())
             .then(dati => {
                 if (dati.success) {
