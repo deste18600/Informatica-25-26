@@ -48,6 +48,7 @@ try {
                     FROM ArticoloInVendita
                     WHERE fkUtenteId = :idProfilo AND disponibilita = TRUE
                     ORDER BY dataPost DESC";
+                    
     $istruzioneArticoli = DBHandler::getPDO()->prepare($sqlArticoli);
     $istruzioneArticoli->execute([':idProfilo' => $idUtenteProfilo]);
     $articoliInVendita = $istruzioneArticoli->fetchAll();
@@ -288,6 +289,8 @@ $inizialiAvatar = strtoupper(substr($datiUtente['nome'], 0, 1) . substr($datiUte
     <script>
 
         function toggleFollow(idVenditore) {
+
+            //cerca nell'html il bottone
             const btn = document.getElementById('followBtn');
             const staGiaSeguendo = btn.classList.contains('following');
 

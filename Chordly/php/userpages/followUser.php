@@ -15,8 +15,8 @@ if ($me <= 0 || $lui <= 0 || $me === $lui) {
 }
 
 try {
- // 3. SCELTA DELLA QUERY (Versione con IF)
-$sql = null; // Partiamo dal presupposto che non ci sia una query
+ // SCELTA DELLA QUERY 
+$sql = null; 
 
 if ($azione === 'follow') {
     $sql = "INSERT IGNORE INTO Segue (idFollower, idSeguito) VALUES (:me, :lui)";

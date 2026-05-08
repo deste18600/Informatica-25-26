@@ -11,7 +11,7 @@ class DBHandler {
 
     private function __construct() {}
 
-    // funzione per ottenere il database
+    // funzione per ottenere la connessione al database
     public static function getPDO() {
      
         if (self::$pdo === null) { 

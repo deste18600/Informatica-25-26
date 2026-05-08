@@ -58,7 +58,6 @@ try {
 
 
 
-
     //Articoli consigliati
     $sqlArticoli = "SELECT idArticolo, titolo, prezzo, immagine
                FROM ArticoloInVendita
